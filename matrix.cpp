@@ -96,9 +96,9 @@ matrix matrix::inversion()
     }
 
     // invertibility sanity check
-    // if (this->determinant(this->m_nCols) != 0) {
-    //     throw std::runtime_error("Determinant is not zero");
-    // }
+    if (determinant(this->m_M) != 0) {
+        throw std::runtime_error("Determinant is not zero");
+    }
 
     // creation of the augmented matrix
     for (int i = 0; i < this->m_nCols; i++) {
