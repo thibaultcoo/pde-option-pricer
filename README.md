@@ -1,5 +1,4 @@
-# PDE solver for vanilla option pricing
-solving partial differential pricing equations for vanilla options
+# Pricing vanilla options through PDEs
+<u>Group1</u>: Garriga Maxime, Soughati Kenza, Saulis Lukas, Collin Thibault
 
 *designed within the scope of the M203 C++ class*
-Group1: Garriga Maxime, Collin Thibault
