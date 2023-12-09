@@ -7,9 +7,9 @@ public:
     matrix(size_t nRows, size_t nCols);
     matrix operator+(matrix& rhs);
     matrix operator*(matrix& rhs);
-    int determinant(int **matrix, int n);
-    int **submatrix(int **matrix, int n, int x, int y);
-    matrix inversion(int **matrix, int n);
+    double determinant(const std::vector<std::vector<double>>& matrix);
+    std::vector<std::vector<double>> submatrix(const std::vector<std::vector<double>>& matrix, int x, int y, int n);
+    matrix inversion();
 
 private:
     size_t m_nCols;

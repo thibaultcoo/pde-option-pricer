@@ -55,23 +55,22 @@ matrix matrix::operator*(matrix& rhs)
 }
 
 // matrix determinant builder
-int matrix::determinant(int **matrix, int n)
+double matrix::determinant(const std::vector<std::vector<double>>& matrix)
 {
     int det = 0;
-    if (n == 2) {return matrix[0][0] * matrix[1][1] - matrix[1][0] * matrix[0][1];}
+    if (this->m_nCols == 2) {return matrix[0][0] * matrix[1][1] - matrix[1][0] * matrix[0][1];}
 
-    for (int x = 0; x < n; ++x) {det += ((x % 2 == 0 ? 1 : -1) * matrix[0][x] * determinant(submatrix(matrix, n, x, 0), n-1));}
+    for (int x = 0; x < this->m_nCols; ++x) {det += ((x % 2 == 0 ? 1 : -1) * matrix[0][x] * determinant(submatrix(matrix, x, 0, this->m_nCols-1)));}
     return det;
 }
 
 // submatrix builder
-int **submatrix(int **matrix, int n, int x, int y)
+std::vector<std::vector<double>> submatrix(const std::vector<std::vector<double>>& matrix, int x, int y, int n)
 {
-    int **submatrix = new int *[n-1];
+    std::vector<std::vector<double>> submatrix;
     int subm_i = 0;
 
     for (int i = 0; i < n; i++) {
-        submatrix[subm_i] = new int[n-1];
         int subm_j = 0;
         if (i == y) {continue;}
 
@@ -86,10 +85,10 @@ int **submatrix(int **matrix, int n, int x, int y)
 }
 
 // inversion of a given squared matrix
-matrix matrix::inversion(int **matrix, int n)
+matrix matrix::inversion()
 {
     // augmented matrix initialization
-    // matrix augmented(this->m_nRows, 2*this->m_nCols);
+    matrix augmented(this->m_nRows, 2*this->m_nCols);
 
     // squared sanity check
     if (this->m_nRows != this->m_nCols) {
@@ -97,14 +96,15 @@ matrix matrix::inversion(int **matrix, int n)
     }
 
     // invertibility sanity check
-    if (determinant(matrix, n) != 0) {
-        throw std::runtime_error("Determinant is not zero");
-    }
+    // if (this->determinant(this->m_nCols) != 0) {
+    //     throw std::runtime_error("Determinant is not zero");
+    // }
 
     // creation of the augmented matrix
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < 2 * n; j++) {
-            // if (j == (i + n)) {augmented[i][j] = 1;}
+    for (int i = 0; i < this->m_nCols; i++) {
+        for (int j = 0; j < this->m_nCols; j++) {
+            augmented.m_M[i][j] = this->m_M[i][j];
         }
+        augmented.m_M[i][i + this->m_nCols] = 1;
     }
 }
