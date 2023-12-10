@@ -77,19 +77,19 @@ matrix matrix::lineSwapper(matrix& augmented, int upperIdx, int lowerIdx)
 }
 
 // matrix determinant builder
-double matrix::determinant(const std::vector<std::vector<double>>& matrix)
+double matrix::determinant(const matrix& mat)
 {
     int det = 0;
-    if (this->m_nCols == 2) {return matrix[0][0] * matrix[1][1] - matrix[1][0] * matrix[0][1];}
+    if (this->m_nCols == 2) {return mat.m_M[0][0] * mat.m_M[1][1] - mat.m_M[1][0] * mat.m_M[0][1];}
 
-    for (int x = 0; x < this->m_nCols; ++x) {det += ((x % 2 == 0 ? 1 : -1) * matrix[0][x] * determinant(submatrix(matrix, x, 0, this->m_nCols-1)));}
+    for (int x = 0; x < this->m_nCols; ++x) {det += ((x % 2 == 0 ? 1 : -1) * mat.m_M[0][x] * determinant(submatrix(mat, x, 0, this->m_nCols-1)));}
     return det;
 }
 
 // submatrix builder
-std::vector<std::vector<double>> matrix::submatrix(const std::vector<std::vector<double>>& matrix, int x, int y, int n)
+matrix matrix::submatrix(const matrix& mat, int x, int y, int n)
 {
-    std::vector<std::vector<double>> submatrix;
+    matrix submatrix(n, n);
     int subm_i = 0;
 
     for (int i = 0; i < n; i++) {
@@ -98,7 +98,7 @@ std::vector<std::vector<double>> matrix::submatrix(const std::vector<std::vector
 
         for (int j = 0; j < n; j++) {
             if (j == x) {continue;}
-            submatrix[subm_i][subm_j] = matrix[i][j];
+            submatrix.m_M[subm_i][subm_j] = mat.m_M[i][j];
             subm_j++;
         }
         subm_i++;
@@ -121,7 +121,7 @@ matrix matrix::inversion()
     }
 
     // invertibility sanity check
-    if (determinant(this->m_M) != 0) {
+    if (determinant(*this) != 0) {
         throw std::runtime_error("Determinant is not zero");
     }
 

@@ -10,8 +10,8 @@ public:
     matrix lineScalar(matrix& augmented, int lineIdx, double scalar);
     matrix lineSwapper(matrix& augmented, int upperIdx, int lowerIdx);
     matrix inversion();
-    double determinant(const std::vector<std::vector<double>>& matrix);
-    std::vector<std::vector<double>> submatrix(const std::vector<std::vector<double>>& matrix, int x, int y, int n);
+    matrix submatrix(const matrix& mat, int x, int y, int n);
+    double determinant(const matrix& mat);
 
 private:
     size_t m_nCols;
