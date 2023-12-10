@@ -8,6 +8,7 @@ public:
     matrix operator+(matrix& rhs);
     matrix operator*(matrix& rhs);
     matrix lineScalar(matrix& augmented, int lineIdx, double scalar);
+    matrix lineIsolator(matrix& augmented, int lineIdx);
     matrix lineSwapper(matrix& augmented, int upperIdx, int lowerIdx);
     matrix inversion();
     matrix submatrix(const matrix& mat, int x, int y, int n);

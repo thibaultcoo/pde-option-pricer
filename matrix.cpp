@@ -106,6 +106,16 @@ matrix matrix::submatrix(const matrix& mat, int x, int y, int n)
     return submatrix;
 }
 
+matrix matrix::lineIsolator(matrix& augmented, int lineIdx)
+{
+    matrix isolatedLine(augmented.m_nRows, augmented.m_nCols);
+    for (int j = 0; j < augmented.m_nCols; j++) {
+        isolatedLine.m_M[lineIdx][j] = augmented.m_M[lineIdx][j];
+    }
+
+    return isolatedLine;
+}
+
 // inversion of a given squared matrix
 matrix matrix::inversion()
 {
@@ -114,6 +124,9 @@ matrix matrix::inversion()
 
     // inversion resulting matrix initialization
     matrix inverted(this->m_nRows, this->m_nCols);
+
+    // zero-filled matrix with the exception of a unique line
+    matrix isolatedLine(augmented.m_nRows, augmented.m_nCols);
 
     // squared sanity check
     if (this->m_nRows != this->m_nCols) {
@@ -137,7 +150,7 @@ matrix matrix::inversion()
     double threshold = 1e-4;
 
     // forward elimination (to construct an upper triangular matrix on the left side)
-    for (int j = 0; j < augmented.m_nCols - 1; j++) {
+    for (int j = 0; j < augmented.m_nRows - 1; j++) {
 
         // need to check if the pivot element is significantly non-zero
         double pivot = augmented.m_M[j][j];
@@ -151,14 +164,31 @@ matrix matrix::inversion()
 
         // now that the pivot can be handled, we want all its below elements to be zero
         for (int i = j + 1; i < augmented.m_nRows; i++) {
-            continue;
+            isolatedLine = lineIsolator(augmented, i);
+
+            isolatedLine = lineScalar(isolatedLine, i, -1 * pivot / isolatedLine.m_M[i][j]);
+            augmented = augmented + isolatedLine;
         }
     }
 
+    // check for the significance of the final diagonal element
+    while (augmented.m_M[augmented.m_nRows][augmented.m_nRows] < threshold) {
+        augmented.m_M[augmented.m_nRows][augmented.m_nRows] *= 10;
+    }
+
     // backward elimination (make the lower triangle zero to end up with a diagonal matrix)
-    for (int i = 0; i < augmented.m_nRows - 1; i++) {
-        for (int j = 0; j < augmented.m_nCols; j++) {
-            continue;
+    for (int j = augmented.m_nRows; j > 1; j--) {
+
+        // defining the pivot once again
+        double pivot = augmented.m_M[j][j];
+
+        for (int i = augmented.m_nRows - 1; i > 0; i--) {
+            
+            // we already treated the significance issue for pivot above so no need for redundance here
+            isolatedLine = lineIsolator(augmented, i);
+
+            isolatedLine = lineScalar(isolatedLine, i, -1 * pivot / isolatedLine.m_M[i][j]);
+            augmented = augmented + isolatedLine;
         }
     }
 
@@ -173,7 +203,7 @@ matrix matrix::inversion()
 
     // isolation of the inversion resulting matrix
     for (int i = 0; i < inverted.m_nRows; i++) {
-        for (int j = 0; i < inverted.m_nCols; j++) {
+        for (int j = 0; j < inverted.m_nCols; j++) {
             inverted.m_M[i][j] = augmented.m_M[i][j + this->m_nCols];
         }
     }
