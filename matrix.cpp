@@ -141,10 +141,18 @@ matrix matrix::inversion()
 
         // need to check if the pivot element is significantly non-zero
         double pivot = augmented.m_M[j][j];
-        while (pivot < threshold) {continue;}
+        int nextLineIdx = j + 1;
 
-        // now that the pivot can be handled (we want all the below elements to be zero)
-        for (int i = j + 1; i < augmented.m_nRows; i++) {continue;}
+        while (pivot < threshold) {
+            augmented = lineSwapper(augmented, j, nextLineIdx);
+            pivot  = augmented.m_M[j][j];
+            nextLineIdx++;
+        }
+
+        // now that the pivot can be handled, we want all its below elements to be zero
+        for (int i = j + 1; i < augmented.m_nRows; i++) {
+            continue;
+        }
     }
 
     // backward elimination (make the lower triangle zero to end up with a diagonal matrix)
