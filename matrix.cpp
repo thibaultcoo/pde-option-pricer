@@ -90,6 +90,9 @@ matrix matrix::inversion()
     // augmented matrix initialization
     matrix augmented(this->m_nRows, 2*this->m_nCols);
 
+    // inversion resulting matrix initialization
+    matrix inverted(this->m_nRows, this->m_nCols);
+
     // squared sanity check
     if (this->m_nRows != this->m_nCols) {
         throw std::runtime_error("Inversion requires a squared matrix.");
@@ -101,10 +104,41 @@ matrix matrix::inversion()
     }
 
     // creation of the augmented matrix
-    for (int i = 0; i < this->m_nCols; i++) {
+    for (int i = 0; i < this->m_nRows; i++) {
         for (int j = 0; j < this->m_nCols; j++) {
             augmented.m_M[i][j] = this->m_M[i][j];
         }
         augmented.m_M[i][i + this->m_nCols] = 1;
     }
+
+    // forward elimination (to construct an upper triangular matrix on the left side)
+    for (int i = 1; i < augmented.m_nRows; i++) {
+        for (int j = 0; j < augmented.m_nCols; j++) {
+            continue;
+        }
+    }
+
+    // backward elimination (make the lower triangle zero to end up with a diagonal matrix)
+    for (int i = 0; i < augmented.m_nRows - 1; i++) {
+        for (int j = 0; j < augmented.m_nCols; j++) {
+            continue;
+        }
+    }
+
+    // normalization of diagonal elements (divide all elements by their scalar)
+    for (int i = 0; i < augmented.m_nRows; i++) {
+        double diag = augmented.m_M[i][i];
+
+        for (int j = 0; j < augmented.m_nCols; j++) {
+            augmented.m_M[i][j] /= diag;
+        }
+    }
+
+    // isolation of the inversion resulting matrix
+    for (int i = 0; i < inverted.m_nRows; i++) {
+        for (int j = 0; i < inverted.m_nCols; j++) {
+            inverted.m_M[i][j] = augmented.m_M[i][j + this->m_nCols];
+        }
+    }
+    return inverted;
 }
