@@ -173,7 +173,8 @@ matrix matrix::inversion()
 
     // check for the significance of the final diagonal element
     while (augmented.m_M[augmented.m_nRows][augmented.m_nRows] < threshold) {
-        augmented.m_M[augmented.m_nRows][augmented.m_nRows] *= 10;
+        for (int j = 0; j < augmented.m_nCols; j++)
+            augmented.m_M[augmented.m_nRows][j] *= 10;
     }
 
     // backward elimination (make the lower triangle zero to end up with a diagonal matrix)
