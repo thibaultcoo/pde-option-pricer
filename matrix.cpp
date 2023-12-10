@@ -54,6 +54,28 @@ matrix matrix::operator*(matrix& rhs)
     return res;
 }
 
+// multiplies the specific line of a matrix by a scalar
+matrix matrix::lineScalar(matrix& augmented, int lineIdx, double scalar)
+{
+    for (int j = 0; j < augmented.m_nCols; j++) {
+        augmented.m_M[lineIdx][j] *= scalar;
+    }
+    return augmented;
+}
+
+// swaps two lines of a matrix
+matrix matrix::lineSwapper(matrix& augmented, int upperIdx, int lowerIdx) 
+{
+    matrix upperLine(0, augmented.m_nCols);
+
+    for (int j = 0; j < augmented.m_nCols; j++) {
+        upperLine.m_M[upperIdx][j] = augmented.m_M[upperIdx][j];
+        augmented.m_M[upperIdx][j] = augmented.m_M[lowerIdx][j];
+        augmented.m_M[lowerIdx][j] = upperLine.m_M[upperIdx][j];
+    }
+    return augmented;
+}
+
 // matrix determinant builder
 double matrix::determinant(const std::vector<std::vector<double>>& matrix)
 {
@@ -65,7 +87,7 @@ double matrix::determinant(const std::vector<std::vector<double>>& matrix)
 }
 
 // submatrix builder
-std::vector<std::vector<double>> submatrix(const std::vector<std::vector<double>>& matrix, int x, int y, int n)
+std::vector<std::vector<double>> matrix::submatrix(const std::vector<std::vector<double>>& matrix, int x, int y, int n)
 {
     std::vector<std::vector<double>> submatrix;
     int subm_i = 0;
@@ -111,11 +133,18 @@ matrix matrix::inversion()
         augmented.m_M[i][i + this->m_nCols] = 1;
     }
 
+    // threshold definition for gauss elimination pivot handling
+    double threshold = 1e-4;
+
     // forward elimination (to construct an upper triangular matrix on the left side)
-    for (int i = 1; i < augmented.m_nRows; i++) {
-        for (int j = 0; j < augmented.m_nCols; j++) {
-            continue;
-        }
+    for (int j = 0; j < augmented.m_nCols - 1; j++) {
+
+        // need to check if the pivot element is significantly non-zero
+        double pivot = augmented.m_M[j][j];
+        while (pivot < threshold) {continue;}
+
+        // now that the pivot can be handled (we want all the below elements to be zero)
+        for (int i = j + 1; i < augmented.m_nRows; i++) {continue;}
     }
 
     // backward elimination (make the lower triangle zero to end up with a diagonal matrix)
