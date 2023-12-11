@@ -4,6 +4,12 @@
 The goal of this project is to build a pricer of vanilla option from the PDE of the derivatives payoff. Key implementations include matrix inversion algorithm and boundaries condition verification. Comments are written along the way, and a detailed documentation will follow soon.
 
 ### Creation of a matrix class
+*Matrix construction*: builds a matrix element given its dimensions. Provides a representation.
+
+```cpp
+matrix::matrix(size_t nRows, size_t nCols)
+```
+
 *Matrix inversion*: uses the **Gauss-Jordan** pivot algorithm to find the inverse of a matrix through its augmented form. Checks for legality of inversion *(matrix is squared and determinant is zero)*.
 
 ```cpp
@@ -20,4 +26,16 @@ matrix::determinant(const matrix& mat)
 
 ```cpp
 matrix::submatrix(const matrix& mat, int x, int y, int n)
+```
+
+*Matrix dot multiplier*: replacing the built-in multiplier operator to make it adapted for matrix dot product.
+
+```cpp
+matrix::operator*(matrix& rhs)
+```
+
+*Matrix addition*: replacing the built-in addition operator to make it adapted for matrix dot product.
+
+```cpp
+matrix::operator+(matrix& rhs)
 ```
