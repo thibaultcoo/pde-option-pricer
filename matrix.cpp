@@ -2,7 +2,7 @@
 #include <vector>
 #include <cmath>
 #include <stdexcept>
-#include <matrix.h>
+#include "matrix.h"
 
 // matrix object constructor
 matrix::matrix(size_t nRows, size_t nCols)
@@ -13,7 +13,7 @@ matrix::matrix(size_t nRows, size_t nCols)
 }
 
 // addition operator for our matrices
-matrix matrix::operator+(matrix& rhs)
+matrix matrix::operator+(const matrix& rhs)
 {
     // sanity check for coherent matrix dimensions, throws exception otherwise
     if ((this->m_nRows != rhs.m_nRows) || (this->m_nCols != rhs.m_nCols)) {
@@ -32,7 +32,7 @@ matrix matrix::operator+(matrix& rhs)
 }
 
 // term by term multiplication (dot product) operator for our matrices
-matrix matrix::operator*(matrix& rhs)
+matrix matrix::operator*(const matrix& rhs)
 {
     // sanity check for coherent matrix dimensions, throws exception otherwise
     if ((this->m_nCols != rhs.m_nRows)) {
