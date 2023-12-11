@@ -55,7 +55,7 @@ matrix matrix::operator*(const matrix& rhs)
 }
 
 // multiplies the specific line of a matrix by a scalar
-matrix matrix::lineScalar(matrix& augmented, int lineIdx, double scalar)
+matrix matrix::lineMultiplier(matrix& augmented, int lineIdx, double scalar)
 {
     for (int j = 0; j < augmented.m_nCols; j++) {
         augmented.m_M[lineIdx][j] *= scalar;
@@ -106,7 +106,7 @@ matrix matrix::submatrix(const matrix& mat, int x, int y, int n)
     return submatrix;
 }
 
-matrix matrix::lineIsolator(matrix& augmented, int lineIdx)
+matrix matrix::lineIsolator(const matrix& augmented, int lineIdx)
 {
     matrix isolatedLine(augmented.m_nRows, augmented.m_nCols);
     for (int j = 0; j < augmented.m_nCols; j++) {
@@ -166,7 +166,7 @@ matrix matrix::inversion()
         for (int i = j + 1; i < augmented.m_nRows; i++) {
             isolatedLine = lineIsolator(augmented, i);
 
-            isolatedLine = lineScalar(isolatedLine, i, -1 * pivot / isolatedLine.m_M[i][j]);
+            isolatedLine = lineMultiplier(isolatedLine, i, -1 * pivot / isolatedLine.m_M[i][j]);
             augmented = augmented + isolatedLine;
         }
     }
@@ -188,7 +188,7 @@ matrix matrix::inversion()
             // we already treated the significance issue for pivot above so no need for redundance here
             isolatedLine = lineIsolator(augmented, i);
 
-            isolatedLine = lineScalar(isolatedLine, i, -1 * pivot / isolatedLine.m_M[i][j]);
+            isolatedLine = lineMultiplier(isolatedLine, i, -1 * pivot / isolatedLine.m_M[i][j]);
             augmented = augmented + isolatedLine;
         }
     }
