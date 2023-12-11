@@ -10,14 +10,14 @@ The goal of this project is to build a pricer of vanilla option from the PDE of 
 matrix::inversion()
 ```
 
-*Matrix determinant calculator*
+*Matrix determinant calculator*: uses the **Laplace expansion** algorithm to break down the n-squared matrices iteratively into 2 by 2 sub-matrices, whose determinant is easy to compute.
 
 ```cpp
 matrix::determinant(const matrix& mat)
 ```
 
-*Matrix determinant calculator*
+*Submatrix calculator*: breaks down an initial n-squared matrix into a reduced (n-1)-squared form, removing the line and column where a given element is located.
 
 ```cpp
-matrix::determinant(const matrix& mat)
+matrix::submatrix(const matrix& mat, int x, int y, int n)
 ```
