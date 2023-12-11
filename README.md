@@ -5,3 +5,6 @@ The goal of this project is to build a pricer of vanilla option from the PDE of 
 
 ### Creation of a matrix class
 *To handle matrix inversion and operations*
+
+```cpp
+matrix::inversion()
