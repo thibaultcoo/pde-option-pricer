@@ -31,11 +31,11 @@ matrix::submatrix(const matrix& mat, int x, int y, int n)
 *Matrix dot multiplier*: replacing the built-in multiplier operator to make it adapted for matrix dot product.
 
 ```cpp
-matrix::operator*(matrix& rhs)
+matrix::operator*(const matrix& rhs)
 ```
 
 *Matrix addition*: replacing the built-in addition operator to make it adapted for matrix dot product.
 
 ```cpp
-matrix::operator+(matrix& rhs)
+matrix::operator+(const matrix& rhs)
 ```
