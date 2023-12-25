@@ -48,19 +48,28 @@ matrix matrix::operator*(const matrix& rhs)
             for (int h = 0; h < this->m_nCols; h++) {
                 temp += this->m_M[i][h] * rhs.m_M[h][j];
             }
-            res.m_M[i][j] = temp;
+            res.m_M[i][j] = zeroRounder(temp);
         }
     }
     return res;
 }
 
-// multiplies the specific line of a matrix by a scalar
-matrix matrix::lineMultiplier(matrix& augmented, int lineIdx, double scalar)
-{
-    for (int j = 0; j < augmented.m_nCols; j++) {
-        augmented.m_M[lineIdx][j] *= scalar;
+double matrix::zeroRounder(double value) {
+    double threshold = 1e-10;
+    if ((value < threshold) && (-value < threshold)) {
+        return 0.0;
+    } else {
+        return value;
     }
-    return augmented;
+}
+
+// multiplies the specific line of a matrix by a scalar
+matrix matrix::lineMultiplier(matrix& mat, int lineIdx, double scalar)
+{
+    for (int j = 0; j < mat.m_nCols; j++) {
+        mat.m_M[lineIdx][j] *= scalar;
+    }
+    return mat;
 }
 
 // swaps two lines of a matrix
@@ -80,9 +89,11 @@ matrix matrix::lineSwapper(matrix& augmented, int upperIdx, int lowerIdx)
 double matrix::determinant(const matrix& mat)
 {
     int det = 0;
-    if (this->m_nCols == 2) {return mat.m_M[0][0] * mat.m_M[1][1] - mat.m_M[1][0] * mat.m_M[0][1];}
+    if (mat.m_nCols == 2) {return mat.m_M[0][0] * mat.m_M[1][1] - mat.m_M[1][0] * mat.m_M[0][1];}
 
-    for (int x = 0; x < this->m_nCols; ++x) {det += ((x % 2 == 0 ? 1 : -1) * mat.m_M[0][x] * determinant(submatrix(mat, x, 0, this->m_nCols-1)));}
+    for (int x = 0; x < mat.m_nCols; x++) {
+        det += ((x % 2 == 0 ? 1 : -1) * mat.m_M[0][x] * determinant(submatrix(mat, x, 0, mat.m_nCols-1)));
+    }
     return det;
 }
 
@@ -92,11 +103,11 @@ matrix matrix::submatrix(const matrix& mat, int x, int y, int n)
     matrix submatrix(n, n);
     int subm_i = 0;
 
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i <= n; i++) {
         int subm_j = 0;
         if (i == y) {continue;}
 
-        for (int j = 0; j < n; j++) {
+        for (int j = 0; j <= n; j++) {
             if (j == x) {continue;}
             submatrix.m_M[subm_i][subm_j] = mat.m_M[i][j];
             subm_j++;
@@ -106,13 +117,12 @@ matrix matrix::submatrix(const matrix& mat, int x, int y, int n)
     return submatrix;
 }
 
-matrix matrix::lineIsolator(const matrix& augmented, int lineIdx)
+matrix matrix::lineIsolator(const matrix& augmented, int lineIdx, int pivotIdx)
 {
     matrix isolatedLine(augmented.m_nRows, augmented.m_nCols);
     for (int j = 0; j < augmented.m_nCols; j++) {
-        isolatedLine.m_M[lineIdx][j] = augmented.m_M[lineIdx][j];
+        isolatedLine.m_M[lineIdx][j] = augmented.m_M[pivotIdx][j];
     }
-
     return isolatedLine;
 }
 
@@ -133,8 +143,8 @@ matrix matrix::inversion()
         throw std::runtime_error("Inversion requires a squared matrix.");
     }
 
-    // invertibility sanity check
-    if (determinant(*this) != 0) {
+    // invertibility sanity check (work in progress: some bugs for high dimensions matrices)
+    if (determinant(*this) == 0) {
         throw std::runtime_error("Determinant is not zero");
     }
 
@@ -156,39 +166,34 @@ matrix matrix::inversion()
         double pivot = augmented.m_M[j][j];
         int nextLineIdx = j + 1;
 
-        while (pivot < threshold) {
+        while ((pivot < threshold) && (-pivot < threshold)) {
             augmented = lineSwapper(augmented, j, nextLineIdx);
             pivot  = augmented.m_M[j][j];
             nextLineIdx++;
         }
 
         // now that the pivot can be handled, we want all its below elements to be zero
-        for (int i = j + 1; i < augmented.m_nRows; i++) {
-            isolatedLine = lineIsolator(augmented, i);
+        for (int i = nextLineIdx; i < augmented.m_nRows; i++) {
+            isolatedLine = lineIsolator(augmented, i, j);
 
-            isolatedLine = lineMultiplier(isolatedLine, i, -1 * pivot / isolatedLine.m_M[i][j]);
+            isolatedLine = lineMultiplier(isolatedLine, i, -augmented.m_M[i][j] / pivot);
             augmented = augmented + isolatedLine;
         }
     }
 
-    // check for the significance of the final diagonal element
-    while (augmented.m_M[augmented.m_nRows][augmented.m_nRows] < threshold) {
-        for (int j = 0; j < augmented.m_nCols; j++)
-            augmented.m_M[augmented.m_nRows][j] *= 10;
-    }
-
     // backward elimination (make the lower triangle zero to end up with a diagonal matrix)
-    for (int j = augmented.m_nRows; j > 1; j--) {
+    for (int j = augmented.m_nRows - 1; j > 0; j--) {
 
         // defining the pivot once again
         double pivot = augmented.m_M[j][j];
+        int nextLineIdx = j - 1;
 
-        for (int i = augmented.m_nRows - 1; i > 0; i--) {
+        for (int i = nextLineIdx; i >= 0; i--) {
             
             // we already treated the significance issue for pivot above so no need for redundance here
-            isolatedLine = lineIsolator(augmented, i);
+            isolatedLine = lineIsolator(augmented, i, j);
+            isolatedLine = lineMultiplier(isolatedLine, i, -augmented.m_M[i][j] / pivot);
 
-            isolatedLine = lineMultiplier(isolatedLine, i, -1 * pivot / isolatedLine.m_M[i][j]);
             augmented = augmented + isolatedLine;
         }
     }
