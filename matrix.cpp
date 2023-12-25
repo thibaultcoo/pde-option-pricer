@@ -76,12 +76,12 @@ matrix matrix::lineMultiplier(matrix& augmented, int lineIdx, double scalar)
 // swaps two lines of a matrix
 matrix matrix::lineSwapper(matrix& augmented, int upperIdx, int lowerIdx) 
 {
-    matrix upperLine(0, augmented.m_nCols);
+    matrix upperLine(1, augmented.m_nCols);
 
     for (int j = 0; j < augmented.m_nCols; j++) {
-        upperLine.m_M[upperIdx][j] = augmented.m_M[upperIdx][j];
+        upperLine.m_M[0][j] = augmented.m_M[upperIdx][j];
         augmented.m_M[upperIdx][j] = augmented.m_M[lowerIdx][j];
-        augmented.m_M[lowerIdx][j] = upperLine.m_M[upperIdx][j];
+        augmented.m_M[lowerIdx][j] = upperLine.m_M[0][j];
     }
     return augmented;
 }
@@ -167,14 +167,14 @@ matrix matrix::inversion()
         double pivot = augmented.m_M[j][j];
         int nextLineIdx = j + 1;
 
-        while ((pivot < threshold) && (-pivot < threshold)) {
+        while ((pivot < threshold) && (-pivot < threshold) && (nextLineIdx < augmented.m_nRows)) {
             augmented = lineSwapper(augmented, j, nextLineIdx);
             pivot  = augmented.m_M[j][j];
             nextLineIdx++;
         }
 
         // now that the pivot can be handled, we want all its below elements to be zero
-        for (int i = nextLineIdx; i < augmented.m_nRows; i++) {
+        for (int i = j + 1; i < augmented.m_nRows; i++) {
             isolatedLine = lineIsolator(augmented, i, j);
 
             isolatedLine = lineMultiplier(isolatedLine, i, -augmented.m_M[i][j] / pivot);
@@ -193,8 +193,8 @@ matrix matrix::inversion()
             
             // we already treated the significance issue for pivot above so no need for redundance here
             isolatedLine = lineIsolator(augmented, i, j);
-            isolatedLine = lineMultiplier(isolatedLine, i, -augmented.m_M[i][j] / pivot);
 
+            isolatedLine = lineMultiplier(isolatedLine, i, -augmented.m_M[i][j] / pivot);
             augmented = augmented + isolatedLine;
         }
     }
