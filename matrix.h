@@ -5,10 +5,10 @@ class matrix
 {
 public:
     matrix(size_t nRows, size_t nCols);
-    matrix operator+(const matrix& rhs);
-    matrix operator*(const matrix& rhs);
+    matrix operator+(const matrix& mat);
+    matrix operator*(const matrix& mat);
     matrix lineIsolator(const matrix& augmented, int lineIdx, int pivotIdx);
-    matrix lineMultiplier(matrix& mat, int lineIdx, double scalar);
+    matrix lineMultiplier(matrix& augmented, int lineIdx, double scalar);
     matrix lineSwapper(matrix& augmented, int upperIdx, int lowerIdx);
     matrix inversion();
     matrix submatrix(const matrix& mat, int x, int y, int n);

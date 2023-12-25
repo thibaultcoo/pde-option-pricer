@@ -13,10 +13,10 @@ matrix::matrix(size_t nRows, size_t nCols)
 }
 
 // addition operator for our matrices
-matrix matrix::operator+(const matrix& rhs)
+matrix matrix::operator+(const matrix& mat)
 {
     // sanity check for coherent matrix dimensions, throws exception otherwise
-    if ((this->m_nRows != rhs.m_nRows) || (this->m_nCols != rhs.m_nCols)) {
+    if ((this->m_nRows != mat.m_nRows) || (this->m_nCols != mat.m_nCols)) {
         throw std::runtime_error("Matrix dimensions must match for addition.");
     }
 
@@ -25,28 +25,28 @@ matrix matrix::operator+(const matrix& rhs)
 
     for (int i = 0; i < this->m_nRows; i++) {
         for (int j = 0; j < this->m_nCols; j++) {
-            res.m_M[i][j] = this->m_M[i][j] + rhs.m_M[i][j];
+            res.m_M[i][j] = this->m_M[i][j] + mat.m_M[i][j];
         }
     }
     return res;
 }
 
 // term by term multiplication (dot product) operator for our matrices
-matrix matrix::operator*(const matrix& rhs)
+matrix matrix::operator*(const matrix& mat)
 {
     // sanity check for coherent matrix dimensions, throws exception otherwise
-    if ((this->m_nCols != rhs.m_nRows)) {
+    if ((this->m_nCols != mat.m_nRows)) {
         throw std::runtime_error("Columns number of first matrix must match rows number of second matrix.");
     }
 
     // initializing the resulting matrix of the dot product (adapting dimensions)
-    matrix res(this->m_nRows, rhs.m_nCols);
+    matrix res(this->m_nRows, mat.m_nCols);
 
     for (int i = 0; i < this->m_nRows; i++) {
-        for (int j = 0; j < rhs.m_nCols; j++) {
+        for (int j = 0; j < mat.m_nCols; j++) {
             double temp = 0;
             for (int h = 0; h < this->m_nCols; h++) {
-                temp += this->m_M[i][h] * rhs.m_M[h][j];
+                temp += this->m_M[i][h] * mat.m_M[h][j];
             }
             res.m_M[i][j] = zeroRounder(temp);
         }
@@ -54,7 +54,8 @@ matrix matrix::operator*(const matrix& rhs)
     return res;
 }
 
-double matrix::zeroRounder(double value) {
+double matrix::zeroRounder(double value)
+{
     double threshold = 1e-10;
     if ((value < threshold) && (-value < threshold)) {
         return 0.0;
@@ -64,12 +65,12 @@ double matrix::zeroRounder(double value) {
 }
 
 // multiplies the specific line of a matrix by a scalar
-matrix matrix::lineMultiplier(matrix& mat, int lineIdx, double scalar)
+matrix matrix::lineMultiplier(matrix& augmented, int lineIdx, double scalar)
 {
-    for (int j = 0; j < mat.m_nCols; j++) {
-        mat.m_M[lineIdx][j] *= scalar;
+    for (int j = 0; j < augmented.m_nCols; j++) {
+        augmented.m_M[lineIdx][j] *= scalar;
     }
-    return mat;
+    return augmented;
 }
 
 // swaps two lines of a matrix
@@ -88,7 +89,7 @@ matrix matrix::lineSwapper(matrix& augmented, int upperIdx, int lowerIdx)
 // matrix determinant builder
 double matrix::determinant(const matrix& mat)
 {
-    int det = 0;
+    double det = 0;
     if (mat.m_nCols == 2) {return mat.m_M[0][0] * mat.m_M[1][1] - mat.m_M[1][0] * mat.m_M[0][1];}
 
     for (int x = 0; x < mat.m_nCols; x++) {
@@ -145,7 +146,7 @@ matrix matrix::inversion()
 
     // invertibility sanity check (work in progress: some bugs for high dimensions matrices)
     if (determinant(*this) == 0) {
-        throw std::runtime_error("Determinant is not zero");
+        throw std::runtime_error("Determinant is zero");
     }
 
     // creation of the augmented matrix
