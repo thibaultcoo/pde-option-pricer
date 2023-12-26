@@ -1,6 +1,3 @@
-#include <cstddef>
-#include <vector>
-
 class blackScholes
 {
 public:
