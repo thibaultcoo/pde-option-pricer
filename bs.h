@@ -13,10 +13,10 @@ private:
     double d2();
     double normCDF(double value);
 
-    double spot;
-    double strike;
-    double rate;
-    double divs;
-    double vol;
-    double matu;
+    double o_spot;
+    double o_strike;
+    double o_rate;
+    double o_divs;
+    double o_vol;
+    double o_matu;
 };

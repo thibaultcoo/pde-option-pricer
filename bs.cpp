@@ -4,27 +4,27 @@
 #include "bs.h"
 
 // black-Scholes object constructor
-blackScholes::blackScholes(double spotOpt, double strikeOpt, double rateOpt, double divsOpt, double volOpt, double matuOpt)
+blackScholes::blackScholes(double spot, double strike, double rate, double divs, double vol, double matu)
 {
-    double spot = spotOpt;
-    double strike = strikeOpt;
-    double rate = rateOpt;
-    double divs = divsOpt;
-    double vol = volOpt;
-    double matu = matuOpt;
+    o_spot = spot;
+    o_strike = strike;
+    o_rate = rate;
+    o_divs = divs;
+    o_vol = vol;
+    o_matu = matu;
 }
 
 double blackScholes::d1()
 {
-    double upper = std::log(this->spot / this->strike) + (this->rate - this->divs + 0.5 * this->vol * this->vol) * this->matu;
-    double lower = this->vol * std::sqrt(this->matu);
+    double upper = std::log(this->o_spot / this->o_strike) + (this->o_rate - this->o_divs + 0.5 * this->o_vol * this->o_vol) * this->o_matu;
+    double lower = this->o_vol * std::sqrt(this->o_matu);
 
     return upper / lower;
 }
 
 double blackScholes::d2()
 {
-    return d1() - this->vol * std::sqrt(this->matu);
+    return d1() - this->o_vol * std::sqrt(this->o_matu);
 }
 
 // approximation by Abramowitz and Stegun; Handbook of Mathematical Functions
@@ -48,20 +48,20 @@ double blackScholes::normCDF(double value)
     return 0.5 * (1.0 + sign * y);
 }
 
-// computest the theoretical price of a Black-Scholes call option
+// compute the theoretical price of a Black-Scholes call option
 double blackScholes::callOptionPrice()
 {
-    double left = std::exp(this->divs * this->matu) * this->spot * normCDF(d1());
-    double right = std::exp(-this->rate * this->matu) * this->strike * normCDF(d2());
+    double left = std::exp(this->o_divs * this->o_matu) * this->o_spot * normCDF(d1());
+    double right = std::exp(-this->o_rate * this->o_matu) * this->o_strike * normCDF(d2());
 
     return left - right;
 }
 
-// computest the theoretical price of a Black-Scholes put option
-double blackScholes::callOptionPrice()
+// compute the theoretical price of a Black-Scholes put option
+double blackScholes::putOptionPrice()
 {
-    double left = std::exp(-this->rate * this->matu) * this->strike * normCDF(-d2());
-    double right = std::exp(this->divs * this->matu) * this->spot * normCDF(-d1());
+    double left = std::exp(-this->o_rate * this->o_matu) * this->o_strike * normCDF(-d2());
+    double right = std::exp(this->o_divs * this->o_matu) * this->o_spot * normCDF(-d1());
 
     return left - right;
 }
