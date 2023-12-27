@@ -33,9 +33,9 @@ double pricerPDE::callOptionPrice()
         applyCrankNicholson();
 
     // now that the solution is in the grid, we extract it (directly or from interpo)
-    double price = extractPrice();
+    // double price = extractPrice();
 
-    return price;
+    return 0.0;
 }
 
 // extracts the final price of the option
@@ -60,11 +60,10 @@ int pricerPDE::findClosestIdx(const matrix& grid, double value)
             disFromElement = std::abs(value - grid.m_M[i][0]);
         }
     }
-
     return resIdx;
 }
 
-void applyCrankNicholson()
+void pricerPDE::applyCrankNicholson()
 {
 
 }

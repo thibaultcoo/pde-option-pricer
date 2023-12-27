@@ -2,22 +2,24 @@
 #include "bs.h"
 
 // black-Scholes object constructor
-blackScholes::blackScholes(double spot, double strike, double rate, double divs, double vol, double matu)
+blackScholes::blackScholes(double spot, double strike, double rate, double divs, double repo, double vol, double matu)
 {
     o_spot = spot;
     o_strike = strike;
     o_rate = rate;
     o_divs = divs;
+    o_repo = repo;
     o_vol = vol;
     o_matu = matu;
 }
 
 double blackScholes::d1()
 {
-    double upper = std::log(this->o_spot / this->o_strike) + (this->o_rate - this->o_divs + 0.5 * this->o_vol * this->o_vol) * this->o_matu;
+    double upper_1 = std::log(this->o_spot / this->o_strike);
+    double upper_2 = (this->o_rate - this->o_divs - this->o_repo + 0.5 * this->o_vol * this->o_vol) * this->o_matu;
     double lower = this->o_vol * std::sqrt(this->o_matu);
 
-    return upper / lower;
+    return (upper_1 + upper_2) / lower;
 }
 
 double blackScholes::d2()

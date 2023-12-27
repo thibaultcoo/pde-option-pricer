@@ -1,7 +1,7 @@
 class blackScholes
 {
 public:
-    blackScholes(double spot, double strike, double rate, double divs, double vol, double matu);
+    blackScholes(double spot, double strike, double rate, double divs, double repo, double vol, double matu);
     double callOptionPrice();
     double putOptionPrice();
 
@@ -14,6 +14,7 @@ private:
     double o_strike;
     double o_rate;
     double o_divs;
+    double o_repo;
     double o_vol;
     double o_matu;
 };

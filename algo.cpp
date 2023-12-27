@@ -71,7 +71,7 @@ int main()
     pricerPDE::coeffFunction d = [](double t, double x)->double {return 0.0;};
 
     // creating a pricing object using pde and implicit finite difference methods
-    pricerPDE pricer(strike, matu, vol, rate, divs, repo, multiplier, terminalCondition, boundaryConditions, a, b, c, d);
+    pricerPDE pricer(spot, strike, matu, vol, rate, divs, repo, multiplier, terminalCondition, boundaryConditions, a, b, c, d);
     price_pde = pricer.callOptionPrice();
 
     std::cout << price_pde << std::endl;
