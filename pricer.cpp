@@ -1,29 +1,35 @@
 #include <iostream>
 #include <vector>
 #include "pricer.h"
+#include "matrix.h"
 
 // PDE pricer object constructor
 pricerPDE::pricerPDE(double strike, double matu, double vol, 
                      double rate, double divs, double repo,
-                     double multiplier, int m, int n)
+                     double multiplier, const matrix& terminalCondition,
+                     const matrix& boundaryConditions, 
+                     coeffFunction a, coeffFunction b, coeffFunction c)
 {
-    p_multiplier = multiplier;
     p_strike = strike;
     p_matu = matu;
     p_vol = vol;
     p_rate = rate;
     p_divs = divs;
     p_repo = repo;
-    p_m = m;
-    p_n = n;
+    p_multiplier = multiplier;
+    p_m = static_cast<int>(terminalCondition.m_M.size());
+    p_n = static_cast<int>(boundaryConditions.m_M.size());
 
     setupGrid();
-    applyTerminalConditions();
+    setTerminalCondition(terminalCondition);
+    setBoundaryConditions(boundaryConditions);
 }
 
 // outputs the final price
-double pricerPDE::getPrice()
+double pricerPDE::callOptionPrice()
 {
+    // applyCrankNicholson();
+
     return 0.0;
 }
 
@@ -31,8 +37,16 @@ double pricerPDE::getPrice()
 void pricerPDE::setupGrid()
 {
     // initializing the variable grids
-    this->p_timeGrid.resize(this->p_n+1);
-    this->p_spotGrid.resize(this->p_m+1);
+    size_t p_n = this->p_n;
+    size_t p_m = this->p_m;
+
+    matrix timeGrid(p_n+1, 1);
+    matrix spotGrid(p_m+1, 1);
+    matrix priceGrid(p_n+1, p_m+1);
+
+    this->p_timeGrid = timeGrid;
+    this->p_spotGrid = spotGrid;
+    this->p_priceGrid = priceGrid;
 
     // initializing the steps
     double dt = this->p_matu / this->p_n;
@@ -40,23 +54,26 @@ void pricerPDE::setupGrid()
 
     // fills the time grid
     for (int i = 0; i < this->p_n+1; i++) {
-        p_timeGrid[i] = i * dt;
+        p_timeGrid.m_M[i][0] = i * dt;
     }
 
     // fills the spot grid
     for (int i = 0; i < this->p_m+1; i++) {
-        p_spotGrid[i] = this->p_strike - this->p_multiplier * this->p_vol * this->p_strike + i * dS;
-    }
-
-    // initializing the grid that will be filled with option prices
-    this->p_priceGrid.resize(this->p_n+1, std::vector<double>(this->p_m+1, 0.0));
+        p_spotGrid.m_M[i][0] = this->p_strike - this->p_multiplier * this->p_vol * this->p_strike + i * dS;
+    }   
 }
 
-// sets up the terminal condition
-void pricerPDE::applyTerminalConditions()
+void pricerPDE::setTerminalCondition(const matrix& terminalCondition)
 {
-    for (int i = 0; i < this->p_m+1; i++) {
-        double spot = this->p_spotGrid[i];
-        p_priceGrid[this->p_n][i] = std::max(spot - this->p_strike, 0.0);
+    for (int i = 0; i < this->p_m; i++) {
+        p_priceGrid.m_M[this->p_n][i] = terminalCondition.m_M[i][0];
+    }
+}
+
+void pricerPDE::setBoundaryConditions(const matrix& boundaryConditions)
+{
+    for (int i = 0; i < this->p_n; i++) {
+        p_priceGrid.m_M[i][0] = boundaryConditions.m_M[i][0];
+        p_priceGrid.m_M[i][this->p_m] = boundaryConditions.m_M[i][1];
     }
 }

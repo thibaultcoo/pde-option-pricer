@@ -1,24 +1,31 @@
 #include <vector>
+#include <functional>
+#include "matrix.h"
 
-class pricerPDE 
+class pricerPDE
 {
 public:
+    using coeffFunction = std::function<double(double, double)>;
+
     pricerPDE(double strike, double matu, double vol, 
               double rate, double divs, double repo,
-              double multiplier, int m, int n);
+              double multiplier, const matrix& terminalCondition,
+              const matrix& boundaryConditions,
+              coeffFunction a, coeffFunction b, coeffFunction c);
 
-    void setupGrid();
-    void initializeBoundaryConditions();
-    void applyTerminalConditions();
-    void solvePDE();
-    double getPrice();
+    double callOptionPrice();
 
 private:
-    std::vector<std::vector<double>> p_priceGrid;
-    std::vector<std::vector<double>> p_boundaryConditions;
-    std::vector<double> p_terminalCondition;
-    std::vector<double> p_timeGrid;
-    std::vector<double> p_spotGrid;
+    void setupGrid();
+    void setTerminalCondition(const matrix& terminalCondition);
+    void setBoundaryConditions(const matrix& boundaryConditions);
+    void applyCrankNicholson();
+
+    matrix p_priceGrid;
+    matrix p_timeGrid;
+    matrix p_spotGrid;
+
+    coeffFunction a, b, c;
 
     double p_multiplier;
     double p_strike;
