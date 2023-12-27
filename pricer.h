@@ -11,7 +11,8 @@ public:
               double rate, double divs, double repo,
               double multiplier, const matrix& terminalCondition,
               const matrix& boundaryConditions,
-              coeffFunction a, coeffFunction b, coeffFunction c);
+              coeffFunction a, coeffFunction b, 
+              coeffFunction c, coeffFunction d);
 
     double callOptionPrice();
 
@@ -20,12 +21,11 @@ private:
     void setTerminalCondition(const matrix& terminalCondition);
     void setBoundaryConditions(const matrix& boundaryConditions);
     void applyCrankNicholson();
+    double extractPrice(double t = 0, double x = 0);
+    double interpo(double t, double x, int tIdx, int xIdx);
 
-    matrix p_priceGrid;
-    matrix p_timeGrid;
-    matrix p_spotGrid;
-
-    coeffFunction a, b, c;
+    matrix p_priceGrid, p_timeGrid, p_spotGrid;
+    coeffFunction a, b, c, d;
 
     double p_multiplier;
     double p_strike;
@@ -34,6 +34,8 @@ private:
     double p_rate;
     double p_divs;
     double p_repo;
+    double p_dt;
+    double p_dS;
     int p_m;
     int p_n;
 };

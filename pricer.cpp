@@ -8,7 +8,8 @@ pricerPDE::pricerPDE(double strike, double matu, double vol,
                      double rate, double divs, double repo,
                      double multiplier, const matrix& terminalCondition,
                      const matrix& boundaryConditions, 
-                     coeffFunction a, coeffFunction b, coeffFunction c)
+                     coeffFunction a, coeffFunction b,
+                     coeffFunction c, coeffFunction d)
 {
     p_strike = strike;
     p_matu = matu;
@@ -28,9 +29,40 @@ pricerPDE::pricerPDE(double strike, double matu, double vol,
 // outputs the final price
 double pricerPDE::callOptionPrice()
 {
-    // applyCrankNicholson();
+    // iterate backwards by applying Crank-Nicholson step
+    for (int t = this->p_n - 1; t > 0; --t)
+        applyCrankNicholson();
 
-    return 0.0;
+    // now that the solution is in the grid, we extract it (directly or from interpo)
+    double price = extractPrice();
+
+    return price;
+}
+
+double pricerPDE::extractPrice(double t, double x)
+{
+    int tIdx;
+    int xIdx;
+    
+    return interpo(t, x, tIdx, xIdx);
+}
+
+double pricerPDE::interpo(double t, double x, int tIdx, int xIdx)
+{
+    if (tIdx < 0 || tIdx > this->p_n || xIdx < 0 || xIdx > this->p_m) {
+        throw std::out_of_range("Interpo indices out of range");
+    }
+
+    // bilinear interpolation
+    double tProp = (t - this->p_timeGrid.m_M[tIdx][0]) / p_dt;
+    double xProp = (x - this->p_spotGrid.m_M[xIdx][0]) / p_dS;
+
+    double res_1 = (1 - tProp) * (1 - xProp) * this->p_priceGrid.m_M[tIdx][xIdx];
+    double res_2 = tProp * (1 - xProp) * this->p_priceGrid.m_M[tIdx + 1][xIdx];
+    double res_3 = (1 - tProp) * xProp * this->p_priceGrid.m_M[tIdx][xIdx + 1];
+    double res_4 = tProp * xProp * this->p_priceGrid.m_M[tIdx + 1][xIdx + 1];
+
+    return res_1 + res_2 + res_3 + res_4;
 }
 
 // sets up the discretized time/spot/price grids
@@ -49,17 +81,17 @@ void pricerPDE::setupGrid()
     this->p_priceGrid = priceGrid;
 
     // initializing the steps
-    double dt = this->p_matu / this->p_n;
-    double dS = this->p_multiplier * this->p_vol * 2 * this->p_strike / this->p_m;
+    double p_dt = this->p_matu / this->p_n;
+    double p_dS = this->p_multiplier * this->p_vol * 2 * this->p_strike / this->p_m;
 
     // fills the time grid
     for (int i = 0; i < this->p_n+1; i++) {
-        p_timeGrid.m_M[i][0] = i * dt;
+        p_timeGrid.m_M[i][0] = i * p_dt;
     }
 
     // fills the spot grid
     for (int i = 0; i < this->p_m+1; i++) {
-        p_spotGrid.m_M[i][0] = this->p_strike - this->p_multiplier * this->p_vol * this->p_strike + i * dS;
+        p_spotGrid.m_M[i][0] = this->p_strike - this->p_multiplier * this->p_vol * this->p_strike + i * p_dS;
     }   
 }
 
