@@ -3,6 +3,7 @@
 #include <vector>
 #include <random>
 #include <chrono>
+#include <functional>
 #include "matrix.h"
 #include "bs.h"
 #include "pricer.h"
@@ -52,16 +53,32 @@ int main()
     double repo = 0.00;
     double vol = 0.25;
     double matu = 1;
-    double price;
+    double price_bs;
+    double price_pde;
 
     // creating an option object and pricing the corresponding call
     blackScholes option(spot, strike, rate, divs, repo, vol, matu);
-    price = option.putOptionPrice();
+    price_bs = option.callOptionPrice();
 
     double multiplier = 0.1;
-    int m = 10;
-    int n = 10;
+    matrix terminalCondition(10, 1);
+    matrix boundaryConditions(15, 2);
+
+    std::function<double(double, double)> a = [](double t, double x) -> double {
+        return x - t;
+    };
+
+    std::function<double(double, double)> b = [](double t, double x) -> double {
+        return x + t;
+    };
+
+    std::function<double(double, double)> c = [](double t, double x) -> double {
+        return x * t;
+    };
 
     // creating a pricing object using pde and implicit finite difference methods
-    pricerPDE pricer(strike, matu, vol, rate, divs, repo, multiplier, m, n);
+    pricerPDE pricer(strike, matu, vol, rate, divs, repo, multiplier, terminalCondition, boundaryConditions, a, b, c);
+    price_pde = pricer.callOptionPrice();
+
+    std::cout << price_pde << std::endl;
 }
