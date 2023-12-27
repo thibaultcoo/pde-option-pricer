@@ -7,12 +7,10 @@ class pricerPDE
 public:
     using coeffFunction = std::function<double(double, double)>;
 
-    pricerPDE(double strike, double matu, double vol, 
-              double rate, double divs, double repo,
-              double multiplier, const matrix& terminalCondition,
-              const matrix& boundaryConditions,
-              coeffFunction a, coeffFunction b, 
-              coeffFunction c, coeffFunction d);
+    pricerPDE(double spot, double strike, double matu, double vol, 
+              double rate, double divs, double repo, double multiplier, 
+              const matrix& terminalCondition, const matrix& boundaryConditions,
+              coeffFunction a, coeffFunction b, coeffFunction c, coeffFunction d);
 
     double callOptionPrice();
 
@@ -21,13 +19,15 @@ private:
     void setTerminalCondition(const matrix& terminalCondition);
     void setBoundaryConditions(const matrix& boundaryConditions);
     void applyCrankNicholson();
-    double extractPrice(double t = 0, double x = 0);
-    double interpo(double t, double x, int tIdx, int xIdx);
+    double extractPrice();
+    int findClosestIdx(const matrix& grid, double value);
+    double interpo(int tIdx, int xIdx);
 
     matrix p_priceGrid, p_timeGrid, p_spotGrid;
     coeffFunction a, b, c, d;
 
     double p_multiplier;
+    double p_spot;
     double p_strike;
     double p_matu;
     double p_vol;
