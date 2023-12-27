@@ -64,20 +64,14 @@ int main()
     matrix terminalCondition(10, 1);
     matrix boundaryConditions(15, 2);
 
-    std::function<double(double, double)> a = [](double t, double x) -> double {
-        return x - t;
-    };
-
-    std::function<double(double, double)> b = [](double t, double x) -> double {
-        return x + t;
-    };
-
-    std::function<double(double, double)> c = [](double t, double x) -> double {
-        return x * t;
-    };
+    // defining the coefficient functions for the algorithm resolution
+    pricerPDE::coeffFunction a = [rate](double t, double x)->double {return -1 * rate;};
+    pricerPDE::coeffFunction b = [rate, divs, repo](double t, double x)->double {return (rate - divs - repo) * x;};
+    pricerPDE::coeffFunction c = [vol](double t, double x)->double {return 0.5 * vol * vol * x * x;};
+    pricerPDE::coeffFunction d = [](double t, double x)->double {return 0.0;};
 
     // creating a pricing object using pde and implicit finite difference methods
-    pricerPDE pricer(strike, matu, vol, rate, divs, repo, multiplier, terminalCondition, boundaryConditions, a, b, c);
+    pricerPDE pricer(strike, matu, vol, rate, divs, repo, multiplier, terminalCondition, boundaryConditions, a, b, c, d);
     price_pde = pricer.callOptionPrice();
 
     std::cout << price_pde << std::endl;
