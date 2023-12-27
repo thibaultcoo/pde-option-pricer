@@ -144,9 +144,12 @@ matrix matrix::inversion()
         throw std::runtime_error("Inversion requires a squared matrix.");
     }
 
-    // invertibility sanity check (work in progress: some bugs for high dimensions matrices)
-    if (determinant(*this) == 0) {
-        throw std::runtime_error("Determinant is zero");
+    // invertibility assumed for very large matrices (computationally impossible)
+    if (this->m_nCols < 11) {
+        // invertibility sanity check
+        if (determinant(*this) == 0) {
+            throw std::runtime_error("Determinant is zero");
+        }
     }
 
     // creation of the augmented matrix
