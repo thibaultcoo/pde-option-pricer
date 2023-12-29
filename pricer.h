@@ -20,7 +20,7 @@ private:
     void applyCrankNicholson();
     double extractPrice();
     int findClosestIdx(const matrix& grid, double value);
-    double interpo(int tIdx, int xIdx);
+    double interpo(int xIdx);
 
     matrix p_timeGrid, p_spotGrid, p_priceGrid;
     matrix p_terminalCondition ,p_lowerBoundaries, p_upperBoundaries;
