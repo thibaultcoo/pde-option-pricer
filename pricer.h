@@ -9,22 +9,22 @@ public:
 
     pricerPDE(double spot, double strike, double matu, double vol, 
               double rate, double divs, double repo, double multiplier, 
-              const matrix& terminalCondition, const matrix& boundaryConditions,
+              const matrix& terminalCondition, 
+              const matrix& lowerBoundaries, const matrix& upperBoundaries,
               coeffFunction a, coeffFunction b, coeffFunction c, coeffFunction d);
 
     double callOptionPrice();
 
 private:
     void setupGrid();
-    void setTerminalCondition(const matrix& terminalCondition);
-    void setBoundaryConditions(const matrix& boundaryConditions);
     void applyCrankNicholson();
     double extractPrice();
     int findClosestIdx(const matrix& grid, double value);
     double interpo(int tIdx, int xIdx);
 
-    matrix p_priceGrid, p_timeGrid, p_spotGrid;
-    coeffFunction a, b, c, d;
+    matrix p_timeGrid, p_spotGrid, p_priceGrid;
+    matrix p_terminalCondition ,p_lowerBoundaries, p_upperBoundaries;
+    coeffFunction p_a, p_b, p_c, p_d;
 
     double p_multiplier;
     double p_spot;
