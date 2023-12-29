@@ -62,7 +62,8 @@ int main()
 
     double multiplier = 0.1;
     matrix terminalCondition(10, 1);
-    matrix boundaryConditions(15, 2);
+    matrix lowerBoundaries(15, 1);
+    matrix upperBoundaries(15, 1);
 
     // defining the coefficient functions for the algorithm resolution
     pricerPDE::coeffFunction a = [rate](double t, double x)->double {return -1 * rate;};
@@ -71,7 +72,7 @@ int main()
     pricerPDE::coeffFunction d = [](double t, double x)->double {return 0.0;};
 
     // creating a pricing object using pde and implicit finite difference methods
-    pricerPDE pricer(spot, strike, matu, vol, rate, divs, repo, multiplier, terminalCondition, boundaryConditions, a, b, c, d);
+    pricerPDE pricer(spot, strike, matu, vol, rate, divs, repo, multiplier, terminalCondition, lowerBoundaries, upperBoundaries, a, b, c, d);
     price_pde = pricer.callOptionPrice();
 
     std::cout << price_pde << std::endl;
