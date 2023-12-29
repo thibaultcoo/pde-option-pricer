@@ -11,40 +11,6 @@
 // sandbox cpp
 int main()
 {
-    // matrix manipulation sandbox
-    size_t nRows = 2;
-    size_t nCols = 2;
-    matrix mat(nRows, nCols);
-    matrix invert(nRows, nCols);
-    matrix testingInvert(nRows, nCols);
-
-    // seed randomizer for double generation
-    auto currentTime = std::chrono::system_clock::now().time_since_epoch().count();
-    std::mt19937 rng(currentTime);
-    std::uniform_real_distribution<double> dist(-1, 1);
-
-    // randomly filling the initial matrix
-    for (int i = 0; i < nRows; i++) {
-        for (int j = 0; j < nCols; j++) {
-            mat.m_M[i][j] = dist(rng);
-            std::cout << " " << mat.m_M[i][j];
-        }
-        std::cout << std::endl;
-    }
-    
-    // inverting the matrix
-    invert = mat.inversion();
-
-    // testing if inversion worked welled
-    testingInvert = mat * invert;
-
-    for (int i = 0; i < nRows; i++) {
-        for (int j = 0; j < nCols; j++) {
-            std::cout << " " << testingInvert.m_M[i][j];
-        }
-        std::cout << std::endl;
-    }
-
     // black-scholes pricing sandbox
     double spot = 100;
     double strike = 90;
@@ -60,10 +26,14 @@ int main()
     blackScholes option(spot, strike, rate, divs, repo, vol, matu);
     price_bs = option.callOptionPrice();
 
-    double multiplier = 0.1;
-    matrix terminalCondition(10, 1);
-    matrix lowerBoundaries(15, 1);
-    matrix upperBoundaries(15, 1);
+    size_t priceGridSize = 10;
+    size_t timeGridSize = 15;
+    double multiplier = 1;
+
+    // the conditions are to be filled within the grid (they are given by the call payoff as well as the spot grid)
+    matrix terminalCondition(priceGridSize, 1);
+    matrix lowerBoundaries(timeGridSize, 1);
+    matrix upperBoundaries(timeGridSize, 1);
 
     // defining the coefficient functions for the algorithm resolution
     pricerPDE::coeffFunction a = [rate](double t, double x)->double {return -1 * rate;};
@@ -75,5 +45,6 @@ int main()
     pricerPDE pricer(spot, strike, matu, vol, rate, divs, repo, multiplier, terminalCondition, lowerBoundaries, upperBoundaries, a, b, c, d);
     price_pde = pricer.callOptionPrice();
 
+    std::cout << price_bs << std::endl;
     std::cout << price_pde << std::endl;
 }
