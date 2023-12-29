@@ -176,11 +176,6 @@ void pricerPDE::applyCrankNicholson()
     for(size_t i = 0; i < p_m - 1; i++){
         this->p_priceGrid.m_M[i+1][0] = U.m_M[i][0];
     }
-
-    for (size_t i = 0; i < this->p_m + 1; i++) {
-        std::cout << " " << this->p_priceGrid.m_M[i][0];
-    }
-    std::cout << std::endl;
 }
 
 // sets up the discretized time/spot/price grids
