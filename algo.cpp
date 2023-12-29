@@ -45,6 +45,6 @@ int main()
     pricerPDE pricer(spot, strike, matu, vol, rate, divs, repo, multiplier, terminalCondition, lowerBoundaries, upperBoundaries, a, b, c, d);
     price_pde = pricer.callOptionPrice();
 
-    std::cout << price_bs << std::endl;
-    std::cout << price_pde << std::endl;
+    std::cout << " " << price_bs << std::endl;
+    std::cout << " " << price_pde << std::endl;
 }

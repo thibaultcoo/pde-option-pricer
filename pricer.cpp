@@ -67,25 +67,26 @@ int pricerPDE::findClosestIdx(const matrix& grid, double value)
     return resIdx;
 }
 
+// produces the linear interpolation in x
 double pricerPDE::interpo(int xIdx)
 {
     if (xIdx < 0 || xIdx > this->p_m) {
         throw std::out_of_range("Interpo indices out of range");
     }
 
-    // Linear interpolation in x
     double xLower = this->p_spotGrid.m_M[xIdx][0];
     double xUpper = this->p_spotGrid.m_M[xIdx + 1][0];
     double xProp = (this->p_spot - xLower) / (xUpper - xLower);
 
     // Interpolate the values at xIdx and xIdx + 1
-    double valueLower = this->p_priceGrid.m_M[0][xIdx];
-    double valueUpper = this->p_priceGrid.m_M[0][xIdx + 1];
+    double valueLower = this->p_priceGrid.m_M[xIdx][0];
+    double valueUpper = this->p_priceGrid.m_M[xIdx + 1][0];
     double interpolatedValue = valueLower * (1 - xProp) + valueUpper * xProp;
 
     return interpolatedValue;
 }
 
+// application of the chosen finite difference scheme
 void pricerPDE::applyCrankNicholson()
 {
     // initializing the variable grids sizes (time and spot discretization)
@@ -173,10 +174,13 @@ void pricerPDE::applyCrankNicholson()
     finalPrice.m_M[p_m][0] = this->p_upperBoundaries.m_M[0][0];
 
     for(size_t i = 0; i < p_m - 1; i++){
-        finalPrice.m_M[i+1][0] = U.m_M[i][0];
+        this->p_priceGrid.m_M[i+1][0] = U.m_M[i][0];
     }
 
-    this->p_priceGrid = finalPrice;
+    for (size_t i = 0; i < this->p_m + 1; i++) {
+        std::cout << " " << this->p_priceGrid.m_M[i][0];
+    }
+    std::cout << std::endl;
 }
 
 // sets up the discretized time/spot/price grids
