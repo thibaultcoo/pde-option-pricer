@@ -54,6 +54,21 @@ matrix matrix::operator*(const matrix& mat)
     return res;
 }
 
+// scalar product operator for our matrices
+matrix matrix::operator*(double lambda)
+{
+    // initializing the resulting matrix of the scalar product
+    matrix res(this->m_nRows, this->m_nCols);
+
+    for (int i = 0; i < this->m_nRows; i++) {
+        for (int j = 0; j < this->m_nCols; j++) {
+            res.m_M[i][j] = this->m_M[i][j] * lambda;
+        }
+    }
+    return res;
+}
+
+// makes our matrix easier to read by simplifying close to zero terms
 double matrix::zeroRounder(double value)
 {
     double threshold = 1e-10;

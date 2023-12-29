@@ -10,6 +10,7 @@ public:
     matrix(size_t nRows = 0, size_t nCols = 0);
     matrix operator+(const matrix& mat);
     matrix operator*(const matrix& mat);
+    matrix operator*(double lambda);
     matrix lineIsolator(const matrix& augmented, int lineIdx, int pivotIdx);
     matrix lineMultiplier(matrix& augmented, int lineIdx, double scalar);
     matrix lineSwapper(matrix& augmented, int upperIdx, int lowerIdx);
