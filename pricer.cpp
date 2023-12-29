@@ -11,6 +11,7 @@ pricerPDE::pricerPDE(double spot, double strike, double matu, double vol,
                      const matrix& lowerBoundaries, const matrix& upperBoundaries,
                      coeffFunction a, coeffFunction b, coeffFunction c, coeffFunction d)
 {
+    p_spot = spot;
     p_strike = strike;
     p_matu = matu;
     p_vol = vol;
@@ -38,23 +39,17 @@ double pricerPDE::callOptionPrice()
     applyCrankNicholson();
 
     // now that the solution is in the grid, we extract it (directly or from interpo)
-    // double price = extractPrice();
+    double price = extractPrice();
 
-    for (size_t i = 0; i < p_m - 1; i++) {
-        std::cout << " " << this->p_priceGrid.m_M[i][0];
-    }
-
-    return 0.0;
+    return price;
 }
 
 // extracts the final price of the option
 double pricerPDE::extractPrice()
 {
-    // wrong indices, work on the logic behind
-    int tIdx = findClosestIdx(this->p_timeGrid, 0.0);
     int xIdx = findClosestIdx(this->p_spotGrid, this->p_spot);
     
-    return interpo(tIdx, xIdx);
+    return interpo(xIdx);
 }
 
 // finds the closest index from the one provided on the grid
@@ -70,6 +65,25 @@ int pricerPDE::findClosestIdx(const matrix& grid, double value)
         }
     }
     return resIdx;
+}
+
+double pricerPDE::interpo(int xIdx)
+{
+    if (xIdx < 0 || xIdx > this->p_m) {
+        throw std::out_of_range("Interpo indices out of range");
+    }
+
+    // Linear interpolation in x
+    double xLower = this->p_spotGrid.m_M[xIdx][0];
+    double xUpper = this->p_spotGrid.m_M[xIdx + 1][0];
+    double xProp = (this->p_spot - xLower) / (xUpper - xLower);
+
+    // Interpolate the values at xIdx and xIdx + 1
+    double valueLower = this->p_priceGrid.m_M[0][xIdx];
+    double valueUpper = this->p_priceGrid.m_M[0][xIdx + 1];
+    double interpolatedValue = valueLower * (1 - xProp) + valueUpper * xProp;
+
+    return interpolatedValue;
 }
 
 void pricerPDE::applyCrankNicholson()
@@ -165,24 +179,6 @@ void pricerPDE::applyCrankNicholson()
     this->p_priceGrid = finalPrice;
 }
 
-double pricerPDE::interpo(int tIdx, int xIdx)
-{
-    if (tIdx < 0 || tIdx > this->p_n || xIdx < 0 || xIdx > this->p_m) {
-        throw std::out_of_range("Interpo indices out of range");
-    }
-
-    // bilinear interpolation
-    double tProp = (this->p_matu - this->p_timeGrid.m_M[tIdx][0]) / this->p_dt;
-    double xProp = (this->p_spot - this->p_spotGrid.m_M[xIdx][0]) / this->p_dS;
-
-    double res_1 = (1 - tProp) * (1 - xProp) * this->p_priceGrid.m_M[tIdx][xIdx];
-    double res_2 = tProp * (1 - xProp) * this->p_priceGrid.m_M[tIdx + 1][xIdx];
-    double res_3 = (1 - tProp) * xProp * this->p_priceGrid.m_M[tIdx][xIdx + 1];
-    double res_4 = tProp * xProp * this->p_priceGrid.m_M[tIdx + 1][xIdx + 1];
-
-    return res_1 + res_2 + res_3 + res_4;
-}
-
 // sets up the discretized time/spot/price grids
 void pricerPDE::setupGrid()
 {
@@ -190,25 +186,36 @@ void pricerPDE::setupGrid()
     size_t p_n = this->p_n;
     size_t p_m = this->p_m;
 
-    matrix timeGrid(p_n+1, 1);
-    matrix spotGrid(p_m+1, 1);
-    matrix priceGrid(p_n+1, p_m+1);
+    matrix timeGrid(p_n, 1);
+    matrix spotGrid(p_m, 1);
+    matrix priceGrid(p_n, p_m);
 
     this->p_timeGrid = timeGrid;
     this->p_spotGrid = spotGrid;
     this->p_priceGrid = priceGrid;
 
     // initializing the steps
-    double p_dt = this->p_matu / this->p_n;
-    double p_dS = this->p_multiplier * this->p_vol * 2 * this->p_strike / this->p_m;
+    this->p_dt = this->p_matu / this->p_n;
+    this->p_dS = this->p_multiplier * this->p_vol * 2 * this->p_strike / this->p_m;
 
     // fills the time grid
-    for (int i = 0; i < this->p_n+1; i++) {
-        p_timeGrid.m_M[i][0] = i * p_dt;
+    for (int i = 0; i < this->p_n; i++) {
+        p_timeGrid.m_M[i][0] = i * this->p_dt;
     }
 
     // fills the spot grid
-    for (int i = 0; i < this->p_m+1; i++) {
-        p_spotGrid.m_M[i][0] = this->p_strike - this->p_multiplier * this->p_vol * this->p_strike + i * p_dS;
-    }   
+    for (int i = 0; i < this->p_m; i++) {
+        p_spotGrid.m_M[i][0] = this->p_strike - this->p_multiplier * this->p_vol * this->p_strike + i * this->p_dS;
+    }
+
+    // fills the terminal condition vector
+    for (int i = 0; i < this->p_m; i++) {
+        p_terminalCondition.m_M[i][0] = std::max(this->p_spotGrid.m_M[i][0] - this->p_strike, 0.0);
+    }
+
+    // fills the upper/lower boundary condition vectors
+    for (int i = 0; i < this->p_n; i++) {
+        p_lowerBoundaries.m_M[i][0] = 0;
+        p_upperBoundaries.m_M[i][0] = this->p_spot;
+    }
 }
