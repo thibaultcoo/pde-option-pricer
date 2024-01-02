@@ -75,7 +75,15 @@ double pricerPDE::interpo(int xIdx)
     }
 
     double xLower = this->p_spotGrid.m_M[xIdx][0];
-    double xUpper = this->p_spotGrid.m_M[xIdx + 1][0];
+    double xUpper;
+
+    // additional security in case index is out of bounds
+    if (xIdx < this->p_spotGrid.m_M.size() - 2) {
+        xUpper = this->p_spotGrid.m_M[xIdx + 1][0];
+    } else {
+        return this->p_priceGrid.m_M[xIdx][0];
+    }
+
     double xProp = (this->p_spot - xLower) / (xUpper - xLower);
 
     // Interpolate the values at xIdx and xIdx + 1
@@ -168,12 +176,10 @@ void pricerPDE::applyCrankNicholson()
         U = P.inversion() * (Q * U + V) * -1;
     }
     // returning output into variable
-    matrix finalPrice(p_m + 1, 1);
+    this->p_priceGrid.m_M[0][0] = this->p_lowerBoundaries.m_M[0][0];
+    this->p_priceGrid.m_M[p_m-1][0] = this->p_upperBoundaries.m_M[0][0];
 
-    finalPrice.m_M[0][0] = this->p_lowerBoundaries.m_M[0][0];
-    finalPrice.m_M[p_m][0] = this->p_upperBoundaries.m_M[0][0];
-
-    for(size_t i = 0; i < p_m - 1; i++){
+    for(size_t i = 0; i < p_m - 2; i++){
         this->p_priceGrid.m_M[i+1][0] = U.m_M[i][0];
     }
 }

@@ -27,10 +27,10 @@ int main()
     price_bs = option.callOptionPrice();
 
     size_t priceGridSize = 10;
-    size_t timeGridSize = 15;
-    double multiplier = 1;
+    size_t timeGridSize = 10;
+    double multiplier = 0.5;
 
-    // the conditions are to be filled within the grid (they are given by the call payoff as well as the spot grid)
+    // the conditions are to be filled with the grid (they are given by the call payoff as well as the spot grid)
     matrix terminalCondition(priceGridSize, 1);
     matrix lowerBoundaries(timeGridSize, 1);
     matrix upperBoundaries(timeGridSize, 1);
