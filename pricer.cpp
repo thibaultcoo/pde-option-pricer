@@ -105,7 +105,7 @@ void pricerPDE::applyCrankNicholson()
     double iterSpot, iterTime;
     double iterA, iterB, iterC, iterD;
 
-    double theta = 0.0;
+    double theta = 0.46;
 
     // creating iterable matrix U corresponding to price with boundary values
     matrix U(p_m - 1,1);

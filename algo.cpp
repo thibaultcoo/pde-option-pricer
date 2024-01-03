@@ -12,13 +12,13 @@
 int main()
 {
     // black-scholes pricing sandbox
-    double spot = 100;
-    double strike = 90;
-    double rate = 0.05;
+    double spot = 150;
+    double strike = 150;
+    double rate = 0.07;
     double divs = 0.00;
     double repo = 0.00;
-    double vol = 0.25;
-    double matu = 1;
+    double vol = 0.17;
+    double matu = 2;
     double price_bs;
     double price_pde;
 
@@ -26,9 +26,9 @@ int main()
     blackScholes option(spot, strike, rate, divs, repo, vol, matu);
     price_bs = option.callOptionPrice();
 
-    size_t priceGridSize = 10;
-    size_t timeGridSize = 10;
-    double multiplier = 0.5;
+    size_t priceGridSize = 50;
+    size_t timeGridSize = 50;
+    double multiplier = 0.6;
 
     // the conditions are to be filled with the grid (they are given by the call payoff as well as the spot grid)
     matrix terminalCondition(priceGridSize, 1);
