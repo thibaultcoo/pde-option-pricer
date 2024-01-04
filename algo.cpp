@@ -26,9 +26,9 @@ int main()
     blackScholes option(spot, strike, rate, divs, repo, vol, matu);
     price_bs = option.callOptionPrice();
 
-    size_t priceGridSize = 50;
-    size_t timeGridSize = 50;
-    double multiplier = 0.6;
+    size_t priceGridSize = 20;
+    size_t timeGridSize = 20;
+    double multiplier = 4;
 
     // the conditions are to be filled with the grid (they are given by the call payoff as well as the spot grid)
     matrix terminalCondition(priceGridSize, 1);

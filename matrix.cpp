@@ -12,6 +12,21 @@ matrix::matrix(size_t nRows, size_t nCols)
     m_M.resize(m_nRows, std::vector<double>(m_nCols, 0.0));
 }
 
+// converting vector of vector into matrix object
+matrix matrix::toMatrix(const std::vector<std::vector<double>> vec)
+{
+    // initialization of the future resulting matrix
+    matrix res(vec.size(), vec[0].size());
+
+    // filling the newly created matrix with the vector elements
+    for (int i = 0; i < vec.size(); i++) {
+        for (int j = 0; j < vec[0].size(); j++) {
+            res.m_M[i][j] = vec[i][j];
+        }
+    }
+    return res;
+}
+
 // addition operator for our matrices
 matrix matrix::operator+(const matrix& mat)
 {
@@ -133,6 +148,7 @@ matrix matrix::submatrix(const matrix& mat, int x, int y, int n)
     return submatrix;
 }
 
+// isolates a specific line from a matrix (wraps it around zeros)
 matrix matrix::lineIsolator(const matrix& augmented, int lineIdx, int pivotIdx)
 {
     matrix isolatedLine(augmented.m_nRows, augmented.m_nCols);
@@ -156,7 +172,7 @@ matrix matrix::inversion()
 
     // squared sanity check
     if (this->m_nRows != this->m_nCols) {
-        throw std::runtime_error("Inversion requires a squared matrix.");
+        throw std::runtime_error("Inversion requires a squared matrix");
     }
 
     // invertibility assumed for very large matrices (computationally impossible)

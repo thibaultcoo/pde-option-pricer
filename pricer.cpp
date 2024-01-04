@@ -105,7 +105,7 @@ void pricerPDE::applyCrankNicholson()
     double iterSpot, iterTime;
     double iterA, iterB, iterC, iterD;
 
-    double theta = 0.46;
+    double theta = 0.50;
 
     // creating iterable matrix U corresponding to price with boundary values
     matrix U(p_m - 1,1);
@@ -179,7 +179,7 @@ void pricerPDE::applyCrankNicholson()
     this->p_priceGrid.m_M[0][0] = this->p_lowerBoundaries.m_M[0][0];
     this->p_priceGrid.m_M[p_m-1][0] = this->p_upperBoundaries.m_M[0][0];
 
-    for(size_t i = 0; i < p_m - 2; i++){
+    for(size_t i = 0; i < p_m - 1; i++){
         this->p_priceGrid.m_M[i+1][0] = U.m_M[i][0];
     }
 }
