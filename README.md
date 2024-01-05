@@ -1,7 +1,7 @@
 # Pricing vanilla options through PDEs
 **<u> Group1 </u>:** *Garriga Maxime, Soughati Kenza, Saulis Lukas, Collin Thibault*, within the scope of the M203 C++ class
 
-The goal of this project is to build a pricer of vanilla option from the PDE of the derivatives payoff. Key implementations include matrix inversion algorithm and boundaries condition verification. Comments are written along the way, and a detailed documentation will follow soon.
+The aim of this project is to build a pricer of vanilla option from the PDE of the derivatives payoff. Key implementations include matrix inversion algorithm and Crank-Nicholson scheme resolution. Comments are written along the way, and a detailed documentation can be found inside the repository. *(last update: Jan 5th)*
 
 ### Creation of a matrix class
 *Matrix construction*: builds a matrix element given its dimensions. Provides a representation.
