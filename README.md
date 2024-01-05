@@ -33,3 +33,5 @@ pricerPDE::setupGrid()
 ```cpp
 pricerPDE::callOptionPrice()
 ```
+
+The scope of changeable lines is labelled with ```Prof.``` and encompasses the resolution parameters, option parameters and boundary/terminal conditions. All code is ours except when stated otherwise. Thanks for this semester, we all wish you a happy New Year !
