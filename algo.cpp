@@ -1,9 +1,6 @@
 #include <iostream>
 #include <cstddef>
 #include <vector>
-#include <random>
-#include <chrono>
-#include <functional>
 #include "matrix.h"
 #include "bs.h"
 #include "pricer.h"
@@ -15,13 +12,13 @@ matrix customUpper(size_t timeGridSize);
 int main()
 {
     // Prof. pricing parameters
-    double spot = 75;
+    double spot = 79;
     double strike = 89;
-    double rate = 0.10;
-    double divs = 0.04;
+    double rate = 0.08;
+    double divs = 0.05;
     double repo = 0.0;
-    double vol = 0.29;
-    double matu = 0.60;
+    double vol = 0.34;
+    double matu = 0.50;
 
     // creating an option object and pricing the corresponding call
     blackScholes option(spot, strike, rate, divs, repo, vol, matu);

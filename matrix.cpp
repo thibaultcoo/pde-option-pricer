@@ -238,7 +238,6 @@ matrix matrix::inversion()
         int nextLineIdx = j - 1;
 
         for (int i = nextLineIdx; i >= 0; i--) {
-            
             // we already treated the significance issue for pivot above so no need for redundance here
             isolatedLine = lineIsolator(augmented, i, j);
 

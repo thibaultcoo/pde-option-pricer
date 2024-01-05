@@ -38,10 +38,10 @@ pricerPDE::pricerPDE(double spot, double strike, double matu, double vol,
 // outputs the final price
 double pricerPDE::callOptionPrice()
 {
-    // application of the algorithm to fill the price grid
+    // application of the scheme that will fill the price grid
     applyCrankNicholson();
 
-    // now that the solution is in the grid, we extract it (directly or from interpo)
+    // now that the solution is in the grid, we extract it from interpolation
     double price = extractPrice();
 
     return price;
@@ -50,57 +50,48 @@ double pricerPDE::callOptionPrice()
 // extracts the final price of the option
 double pricerPDE::extractPrice()
 {
+    // we look for the closest value from the spot and retrieve its index
     int xIdx = findClosestIdx(this->p_spotGrid, this->p_spot);
     
+    // having located the final price area, we thus interpolate to approximate its value
     return interpo(xIdx);
 }
 
 // finds the closest index from the one provided on the grid
 int pricerPDE::findClosestIdx(const matrix& grid, double value)
 {
-    double disFromElement = std::abs(value - grid.m_M[0][0]);
-    int resIdx;
-
-    for (int i = 1; i < grid.m_M.size(); i++) {
-        if (disFromElement > std::abs(value - grid.m_M[i][0])) {
-            resIdx = i;
-            disFromElement = std::abs(value - grid.m_M[i][0]);
+    for (int i = 0; i < grid.m_M.size(); i++) {
+        // as soon as the spot seen on the grid is bigger than our spot, we know what our boundaries are
+        if (value - grid.m_M[i][0] < 0) {
+            return i - 1;
         }
     }
-    return resIdx;
+    // corner case: the spot is outside the grid
+    return grid.m_M.size() - 2;
 }
 
 // produces the linear interpolation in x
 double pricerPDE::interpo(int xIdx)
 {
-    if (xIdx < 0 || xIdx > this->p_m) {
-        throw std::out_of_range("Interpo indices out of range");
-    }
-
+    // isolating the spot boundaries for the interpolation
     double xLower = this->p_spotGrid.m_M[xIdx][0];
-    double xUpper;
+    double xUpper = this->p_spotGrid.m_M[xIdx + 1][0];
 
-    // additional security in case index is out of bounds
-    if (xIdx < this->p_spotGrid.m_M.size() - 2) {
-        xUpper = this->p_spotGrid.m_M[xIdx + 1][0];
-    } else {
-        return this->p_priceGrid.m_M[xIdx][0];
-    }
+    // isolating the corresponding prices
+    double priceLower = this->p_priceGrid.m_M[xIdx][0];
+    double priceUpper = this->p_priceGrid.m_M[xIdx + 1][0];
 
-    // interpolating the values
+    // computing the resulting interpolated price
     double xProp = (this->p_spot - xLower) / (xUpper - xLower);
-    double valueLower = this->p_priceGrid.m_M[xIdx][0];
-    double valueUpper = this->p_priceGrid.m_M[xIdx + 1][0];
+    double interpolatedPrice = priceLower * (1 - xProp) + priceUpper * xProp;
 
-    double interpolatedValue = valueLower * (1 - xProp) + valueUpper * xProp;
-
-    return interpolatedValue;
+    return interpolatedPrice;
 }
 
 // application of the chosen finite difference scheme
 void pricerPDE::applyCrankNicholson()
 {
-    // initializing the variable grids sizes (time and spot discretization)
+    // initializing the variable grids sizes (time and spot discretization respectively)
     size_t p_n = this->p_n;
     size_t p_m = this->p_m;
 
@@ -224,7 +215,7 @@ void pricerPDE::setupGrid()
     setupTerminal();
 }
 
-// fills the lower and upper boundary conditions
+// fills the lower and upper boundary conditions (default if nothing is input by Prof.)
 void pricerPDE::setupTerminal()
 {
     for (int i = 0; i < this->p_m; i++) {
@@ -232,7 +223,7 @@ void pricerPDE::setupTerminal()
     }
 }
 
-// fills the terminal condition
+// fills the terminal condition (default if nothing is input by Prof.)
 void pricerPDE::setupBoundary(double remaining_t)
 {
     for (int i = 0; i < this->p_n; i++) {
