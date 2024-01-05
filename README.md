@@ -16,7 +16,7 @@ matrix::inversion()
 matrix::determinant(const matrix& mat)
 ```
 
-*Theoretical call option pricing*: uses Black-Scholes formula with dividends and repo to compute the price of a vanilla call option. Used to study the convergence of a price obtained through finite difference.
+*Theoretical call option pricing*: uses **Black-Scholes** formula with dividends and repo to compute the price of a vanilla call option. Used to study the convergence of a price obtained through finite difference.
 
 ```cpp
 blackScholes::callOptionPrice()
