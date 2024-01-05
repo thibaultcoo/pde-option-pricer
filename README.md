@@ -16,3 +16,20 @@ matrix::inversion()
 matrix::determinant(const matrix& mat)
 ```
 
+*Theoretical call option pricing*: uses Black-Scholes formula with dividends and repo to compute the price of a vanilla call option. Used to study the convergence of a price obtained through finite difference.
+
+```cpp
+blackScholes::callOptionPrice()
+```
+
+*Finite difference grid initialization*: prepares the time and spot grids for our finite difference resolution. Also prepares the boundary and terminal conditions, default values are used if none are provided by the user.
+
+```cpp
+pricerPDE::setupGrid()
+```
+
+*Finite difference call option pricing*: uses **Crank-Nicholson** scheme to build the whole final prices grid backwards in time, and an extraction function to isolate the price corresponding to our input level of spot.
+
+```cpp
+pricerPDE::callOptionPrice()
+```
