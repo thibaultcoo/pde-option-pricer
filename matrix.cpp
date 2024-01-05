@@ -66,12 +66,14 @@ matrix matrix::operator*(const matrix& mat)
     // initializing the resulting matrix of the dot product (adapting dimensions)
     matrix res(this->m_nRows, mat.m_nCols);
 
+    // performing the dot product
     for (int i = 0; i < this->m_nRows; i++) {
         for (int j = 0; j < mat.m_nCols; j++) {
             double temp = 0;
             for (int h = 0; h < this->m_nCols; h++) {
                 temp += this->m_M[i][h] * mat.m_M[h][j];
             }
+            // visual simplification used to round to zero when arguably very close to zero
             res.m_M[i][j] = zeroRounder(temp);
         }
     }
@@ -129,9 +131,11 @@ matrix matrix::lineSwapper(matrix& augmented, int upperIdx, int lowerIdx)
 double matrix::determinant(const matrix& mat)
 {
     double det = 0;
+    // straightforward determinant formula for 2 by 2 matrices
     if (mat.m_nCols == 2) {return mat.m_M[0][0] * mat.m_M[1][1] - mat.m_M[1][0] * mat.m_M[0][1];}
 
     for (int x = 0; x < mat.m_nCols; x++) {
+        // iteratively breaks down sub-matrices into smaller matrices until size is 2 by 2: determinant is then immediate
         det += ((x % 2 == 0 ? 1 : -1) * mat.m_M[0][x] * determinant(submatrix(mat, x, 0, mat.m_nCols-1)));
     }
     return det;
@@ -143,6 +147,7 @@ matrix matrix::submatrix(const matrix& mat, int x, int y, int n)
     matrix submatrix(n, n);
     int subm_i = 0;
 
+    // simply skips both the line and the column when the co-factor is located
     for (int i = 0; i <= n; i++) {
         int subm_j = 0;
         if (i == y) {continue;}
@@ -184,7 +189,7 @@ matrix matrix::inversion()
         throw std::runtime_error("Inversion requires a squared matrix");
     }
 
-    // invertibility assumed for very large matrices (computationally impossible)
+    // invertibility assumed for very large matrices (computationally too expensive)
     if (this->m_nCols < 11) {
         // invertibility sanity check
         if (determinant(*this) == 0) {

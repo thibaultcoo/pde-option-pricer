@@ -12,23 +12,20 @@ matrix customTerminal(size_t priceGridSize);
 matrix customLower(size_t timeGridSize);
 matrix customUpper(size_t timeGridSize);
 
-// sandbox cpp
 int main()
 {
-    // black-scholes pricing sandbox
-    double spot = 112;
-    double strike = 100;
-    double rate = 0.11;
+    // Prof. pricing parameters
+    double spot = 75;
+    double strike = 89;
+    double rate = 0.10;
     double divs = 0.04;
     double repo = 0.0;
-    double vol = 0.30;
-    double matu = 0.5;
-    double price_bs;
-    double price_pde;
+    double vol = 0.29;
+    double matu = 0.60;
 
     // creating an option object and pricing the corresponding call
     blackScholes option(spot, strike, rate, divs, repo, vol, matu);
-    price_bs = option.callOptionPrice();
+    double price_bs = option.callOptionPrice();
 
     // discretization steps for the finite difference price resolution
     size_t priceGridSize = 50;
@@ -55,11 +52,11 @@ int main()
 
     // creating a pricing object using pde and implicit finite difference methods
     pricerPDE pricer(spot, strike, matu, vol, rate, divs, repo, multiplier, terminalCondition, lowerBoundaries, upperBoundaries, a, b, c, d);
-    price_pde = pricer.callOptionPrice();
+    double price_pde = pricer.callOptionPrice();
 
     // comparing the results following both methods to study convergence
-    std::cout << " " << price_bs << std::endl;
-    std::cout << " " << price_pde << std::endl;
+    std::cout << "The Black-Scholes call option price is " << price_bs << "." << std::endl;
+    std::cout << "The Finite-Difference call option price is " << price_pde << "." << std::endl;
 }
 
 // Prof. : to use a custom terminal condition

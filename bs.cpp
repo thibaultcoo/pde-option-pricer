@@ -1,7 +1,7 @@
 #include <cmath>
 #include "bs.h"
 
-// black-Scholes object constructor
+// Black-Scholes object constructor
 blackScholes::blackScholes(double spot, double strike, double rate, double divs, double repo, double vol, double matu)
 {
     o_spot = spot;
