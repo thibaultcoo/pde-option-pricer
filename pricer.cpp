@@ -7,8 +7,8 @@
 // PDE pricer object constructor
 pricerPDE::pricerPDE(double spot, double strike, double matu, double vol, 
                      double rate, double divs, double repo, double multiplier, 
-                     const matrix& terminalCondition, 
-                     const matrix& lowerBoundaries, const matrix& upperBoundaries,
+                     matrix& terminalCondition, 
+                     matrix& lowerBoundaries, matrix& upperBoundaries,
                      coeffFunction a, coeffFunction b, coeffFunction c, coeffFunction d)
 {
     p_spot = spot;
@@ -24,6 +24,9 @@ pricerPDE::pricerPDE(double spot, double strike, double matu, double vol,
     p_lowerBoundaries = lowerBoundaries;
     p_upperBoundaries = upperBoundaries;
     p_terminalCondition = terminalCondition;
+    p_isDefaultLower = lowerBoundaries.isEmpty();
+    p_isDefaultUpper = upperBoundaries.isEmpty();
+    p_isDefaultTerminal = terminalCondition.isEmpty();
     p_a = a;
     p_b = b;
     p_c = c;
@@ -86,7 +89,7 @@ double pricerPDE::interpo(int xIdx)
 
     double xProp = (this->p_spot - xLower) / (xUpper - xLower);
 
-    // Interpolate the values at xIdx and xIdx + 1
+    // interpolating the values
     double valueLower = this->p_priceGrid.m_M[xIdx + 1][0];
     double valueUpper = this->p_priceGrid.m_M[xIdx + 2][0];
     double interpolatedValue = valueLower * (1 - xProp) + valueUpper * xProp;
@@ -116,7 +119,7 @@ void pricerPDE::applyCrankNicholson()
     // initalizing terminal values
     uFirst = this->p_terminalCondition.m_M[0][0];
 
-    for(size_t i = 0; i < p_m - 1; i++){
+    for(size_t i = 0; i < this->p_m - 1; i++){
         U.m_M[i][0] = this->p_terminalCondition.m_M[i][0];
     }
 
@@ -128,9 +131,9 @@ void pricerPDE::applyCrankNicholson()
         setupBoundary(k / this->p_n);
         uFirst = this->p_lowerBoundaries.m_M[k][0];
 
-        matrix P(this->p_m - 1, this->p_m - 1);
-        matrix Q(this->p_m - 1, this->p_m - 1);
-        matrix V(this->p_m - 1, 1);
+        matrix P(p_m - 1, p_m - 1);
+        matrix Q(p_m - 1, p_m - 1);
+        matrix V(p_m - 1, 1);
 
         // get current value of time
         iterTime = this->p_timeGrid.m_M[k][0];
@@ -205,15 +208,15 @@ void pricerPDE::setupGrid()
 
     // fills the time grid
     for (int i = 0; i < this->p_n; i++) {
-        p_timeGrid.m_M[i][0] = i * this->p_dt;
+        this->p_timeGrid.m_M[i][0] = i * this->p_dt;
     }
 
     // fills the spot grid
     for (int i = 0; i < this->p_m; i++) {
-        p_spotGrid.m_M[i][0] = this->p_strike - this->p_multiplier * this->p_vol * this->p_strike + i * this->p_dS;
+        this->p_spotGrid.m_M[i][0] = this->p_strike - this->p_multiplier * this->p_vol * this->p_strike + i * this->p_dS;
 
         // applies the natural lower boundary condition on the spot (assume to be positive or null)
-        if (p_spotGrid.m_M[i][0] < 0) {p_spotGrid.m_M[i][0] = 0;};
+        if (this->p_spotGrid.m_M[i][0] < 0) {this->p_spotGrid.m_M[i][0] = 0;};
     }
 
     setupBoundary(this->p_matu);
@@ -224,7 +227,7 @@ void pricerPDE::setupGrid()
 void pricerPDE::setupTerminal()
 {
     for (int i = 0; i < this->p_m; i++) {
-        p_terminalCondition.m_M[i][0] = std::max(this->p_spotGrid.m_M[i][0] - this->p_strike, 0.0);
+        if (this->p_isDefaultTerminal) {this->p_terminalCondition.m_M[i][0] = std::max(this->p_spotGrid.m_M[i][0] - this->p_strike, 0.0);}
     }
 }
 
@@ -232,8 +235,8 @@ void pricerPDE::setupTerminal()
 void pricerPDE::setupBoundary(double remaining_t)
 {
     for (int i = 0; i < this->p_n; i++) {
-        p_lowerBoundaries.m_M[i][0] = 0;
-        p_upperBoundaries.m_M[i][0] = this->p_spotGrid.m_M[i][0];
-        p_upperBoundaries.m_M[i][0] *= std::exp((this->p_repo - this->p_divs - this->p_rate) * (remaining_t));
+        if (this->p_isDefaultLower) {this->p_lowerBoundaries.m_M[i][0] = 0;}
+        if (this->p_isDefaultUpper) {this->p_upperBoundaries.m_M[i][0] = this->p_spotGrid.m_M[i][0];}
+        if (this->p_isDefaultUpper) {this->p_upperBoundaries.m_M[i][0] *= std::exp((this->p_repo - this->p_divs - this->p_rate) * (remaining_t));}
     }
 }

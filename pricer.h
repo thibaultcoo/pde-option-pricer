@@ -9,8 +9,8 @@ public:
 
     pricerPDE(double spot, double strike, double matu, double vol, 
               double rate, double divs, double repo, double multiplier, 
-              const matrix& terminalCondition, 
-              const matrix& lowerBoundaries, const matrix& upperBoundaries,
+              matrix& terminalCondition, 
+              matrix& lowerBoundaries, matrix& upperBoundaries,
               coeffFunction a, coeffFunction b, coeffFunction c, coeffFunction d);
 
     double callOptionPrice();
@@ -38,6 +38,9 @@ private:
     double p_repo;
     double p_dt;
     double p_dS;
+    bool p_isDefaultTerminal;
+    bool p_isDefaultUpper;
+    bool p_isDefaultLower;
     int p_m;
     int p_n;
 };

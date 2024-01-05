@@ -8,17 +8,21 @@
 #include "bs.h"
 #include "pricer.h"
 
+matrix customTerminal(size_t priceGridSize);
+matrix customLower(size_t timeGridSize);
+matrix customUpper(size_t timeGridSize);
+
 // sandbox cpp
 int main()
 {
     // black-scholes pricing sandbox
-    double spot = 70;
+    double spot = 90;
     double strike = 110;
-    double rate = 0.13;
-    double divs = 0.00;
-    double repo = 0.00;
-    double vol = 0.34;
-    double matu = 2;
+    double rate = 0.05;
+    double divs = 0.05;
+    double repo = 0.02;
+    double vol = 0.32;
+    double matu = 1.15;
     double price_bs;
     double price_pde;
 
@@ -26,14 +30,22 @@ int main()
     blackScholes option(spot, strike, rate, divs, repo, vol, matu);
     price_bs = option.callOptionPrice();
 
+    // discretization steps for the finite difference price resolution
     size_t priceGridSize = 50;
     size_t timeGridSize = 50;
+
+    // chosen to generate a coherent spot grid
     double multiplier = 4;
 
-    // the conditions are to be filled with the grid (choosing custom conditions is not possible thus far)
+    // initializing the conditions/boundaries vectors
     matrix terminalCondition(priceGridSize, 1);
     matrix lowerBoundaries(timeGridSize, 1);
     matrix upperBoundaries(timeGridSize, 1);
+
+    // ability for Prof. to upload custom conditions (default conditions used otherwise)
+    terminalCondition = customTerminal(priceGridSize);
+    lowerBoundaries = customLower(timeGridSize);
+    upperBoundaries = customUpper(timeGridSize);
 
     // defining the coefficient functions for the algorithm resolution
     pricerPDE::coeffFunction a = [rate](double t, double x)->double {return -1 * rate;};
@@ -48,4 +60,43 @@ int main()
     // comparing the results following both methods to study convergence
     std::cout << " " << price_bs << std::endl;
     std::cout << " " << price_pde << std::endl;
+}
+
+// Prof. : to use a custom terminal condition
+matrix customTerminal(size_t priceGridSize)
+{
+    // initializes the resulting matrix
+    matrix resTerminal(priceGridSize, 1);
+
+    // gives the custom-valued vector (replace with Prof. vector)
+    std::vector<double> customTerminal(static_cast<int>(priceGridSize), 0.0);
+
+    // returns the converted custom vector into a usable matrix
+    return resTerminal.toMatrix(customTerminal);
+}
+
+// Prof. : to use custom lower boundary conditions
+matrix customLower(size_t timeGridSize)
+{
+    // initializes the resulting matrix
+    matrix resLower(timeGridSize, 1);
+
+    // gives the custom-valued vector (replace with Prof. vector)
+    std::vector<double> customLower(static_cast<int>(timeGridSize), 0.0);
+
+    // returns the converted custom vector into a usable matrix
+    return resLower.toMatrix(customLower);
+}
+
+// Prof. : to use custom upper boundary conditions
+matrix customUpper(size_t timeGridSize)
+{
+    // initializes the resulting matrix
+    matrix resUpper(timeGridSize, 1);
+
+    // gives the custom-valued vector (replace with Prof. vector)
+    std::vector<double> customUpper(static_cast<int>(timeGridSize), 0.0);
+
+    // returns the converted custom vector into a usable matrix
+    return resUpper.toMatrix(customUpper);
 }

@@ -12,19 +12,28 @@ matrix::matrix(size_t nRows, size_t nCols)
     m_M.resize(m_nRows, std::vector<double>(m_nCols, 0.0));
 }
 
-// converting vector of vector into matrix object
-matrix matrix::toMatrix(const std::vector<std::vector<double>> vec)
+// converting vector into matrix object
+matrix matrix::toMatrix(const std::vector<double> vec)
 {
     // initialization of the future resulting matrix
-    matrix res(vec.size(), vec[0].size());
+    matrix res(vec.size(), 1);
 
     // filling the newly created matrix with the vector elements
     for (int i = 0; i < vec.size(); i++) {
-        for (int j = 0; j < vec[0].size(); j++) {
-            res.m_M[i][j] = vec[i][j];
-        }
+        res.m_M[i][0] = vec[i];
     }
     return res;
+}
+
+// checks if the matrix is entirely empty
+bool matrix::isEmpty()
+{
+    for (int i = 0; i < this->m_nRows; i++) {
+        for (int j = 0; j < this->m_nCols; j++) {
+            if (this->m_M[i][j] != 0.0) {return false;};
+        }
+    }
+    return true;
 }
 
 // addition operator for our matrices

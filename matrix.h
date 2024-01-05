@@ -16,9 +16,10 @@ public:
     matrix lineSwapper(matrix& augmented, int upperIdx, int lowerIdx);
     matrix inversion();
     matrix submatrix(const matrix& mat, int x, int y, int n);
-    matrix toMatrix(const std::vector<std::vector<double>> vec);
+    matrix toMatrix(const std::vector<double> vec);
     double zeroRounder(double value);
     double determinant(const matrix& mat);
+    bool isEmpty();
 
     std::vector<std::vector<double>> m_M;
 
