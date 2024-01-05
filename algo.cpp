@@ -16,13 +16,13 @@ matrix customUpper(size_t timeGridSize);
 int main()
 {
     // black-scholes pricing sandbox
-    double spot = 90;
-    double strike = 110;
-    double rate = 0.05;
-    double divs = 0.05;
-    double repo = 0.02;
-    double vol = 0.32;
-    double matu = 1.15;
+    double spot = 112;
+    double strike = 100;
+    double rate = 0.11;
+    double divs = 0.04;
+    double repo = 0.0;
+    double vol = 0.30;
+    double matu = 0.5;
     double price_bs;
     double price_pde;
 

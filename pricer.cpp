@@ -87,11 +87,11 @@ double pricerPDE::interpo(int xIdx)
         return this->p_priceGrid.m_M[xIdx][0];
     }
 
-    double xProp = (this->p_spot - xLower) / (xUpper - xLower);
-
     // interpolating the values
-    double valueLower = this->p_priceGrid.m_M[xIdx + 1][0];
-    double valueUpper = this->p_priceGrid.m_M[xIdx + 2][0];
+    double xProp = (this->p_spot - xLower) / (xUpper - xLower);
+    double valueLower = this->p_priceGrid.m_M[xIdx][0];
+    double valueUpper = this->p_priceGrid.m_M[xIdx + 1][0];
+
     double interpolatedValue = valueLower * (1 - xProp) + valueUpper * xProp;
 
     return interpolatedValue;
@@ -178,12 +178,12 @@ void pricerPDE::applyCrankNicholson()
         // retrieve previous state of matrix
         U = P.inversion() * (Q * U + V) * -1;
     }
-    // returning output into variable
-    this->p_priceGrid.m_M[0][0] = this->p_lowerBoundaries.m_M[0][0];
-    this->p_priceGrid.m_M[p_m-1][0] = this->p_upperBoundaries.m_M[0][0];
+
+    // finish filling the price grid with the terminal price values
+    this->p_priceGrid.m_M[this->p_m - 1][0] = this->p_upperBoundaries.m_M[p_m - 1][0];
 
     for(size_t i = 0; i < this->p_m - 1; i++){
-        this->p_priceGrid.m_M[i+1][0] = U.m_M[i][0];
+        this->p_priceGrid.m_M[i][0] = U.m_M[i][0];
     }
 }
 
@@ -219,6 +219,7 @@ void pricerPDE::setupGrid()
         if (this->p_spotGrid.m_M[i][0] < 0) {this->p_spotGrid.m_M[i][0] = 0;};
     }
 
+    // setting up the boundary conditions (will be set at their default value if input is empty)
     setupBoundary(this->p_matu);
     setupTerminal();
 }

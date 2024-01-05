@@ -51,7 +51,7 @@ double blackScholes::normCDF(double value)
 // compute the theoretical price of a Black-Scholes call option
 double blackScholes::callOptionPrice()
 {
-    double left = std::exp(this->o_divs * this->o_matu) * this->o_spot * normCDF(d1());
+    double left = std::exp((this->o_repo - this->o_divs) * this->o_matu) * this->o_spot * normCDF(d1());
     double right = std::exp(-this->o_rate * this->o_matu) * this->o_strike * normCDF(d2());
 
     return left - right;
@@ -61,7 +61,7 @@ double blackScholes::callOptionPrice()
 double blackScholes::putOptionPrice()
 {
     double left = std::exp(-this->o_rate * this->o_matu) * this->o_strike * normCDF(-d2());
-    double right = std::exp(this->o_divs * this->o_matu) * this->o_spot * normCDF(-d1());
+    double right = std::exp((this->o_repo - this->o_divs) * this->o_matu) * this->o_spot * normCDF(-d1());
 
     return left - right;
 }
