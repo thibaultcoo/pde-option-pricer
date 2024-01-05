@@ -17,6 +17,8 @@ public:
 
 private:
     void setupGrid();
+    void setupBoundary(double remaining_t);
+    void setupTerminal();
     void applyCrankNicholson();
     double extractPrice();
     int findClosestIdx(const matrix& grid, double value);

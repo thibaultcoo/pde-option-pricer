@@ -87,8 +87,8 @@ double pricerPDE::interpo(int xIdx)
     double xProp = (this->p_spot - xLower) / (xUpper - xLower);
 
     // Interpolate the values at xIdx and xIdx + 1
-    double valueLower = this->p_priceGrid.m_M[xIdx][0];
-    double valueUpper = this->p_priceGrid.m_M[xIdx + 1][0];
+    double valueLower = this->p_priceGrid.m_M[xIdx + 1][0];
+    double valueUpper = this->p_priceGrid.m_M[xIdx + 2][0];
     double interpolatedValue = valueLower * (1 - xProp) + valueUpper * xProp;
 
     return interpolatedValue;
@@ -105,37 +105,37 @@ void pricerPDE::applyCrankNicholson()
     double iterSpot, iterTime;
     double iterA, iterB, iterC, iterD;
 
-    double theta = 0.50;
+    // coefficient value coherent with a Crank-Nicholson scheme (half implicit/explicit resolution)
+    double theta = 0.5;
 
     // creating iterable matrix U corresponding to price with boundary values
     matrix U(p_m - 1,1);
-    double uFirst, uLast;
-    double prev_uFirst, prev_uLast;
+    double uFirst;
+    double prev_uFirst;
 
     // initalizing terminal values
     uFirst = this->p_terminalCondition.m_M[0][0];
-    uLast = this->p_terminalCondition.m_M[p_m - 1][0];
 
     for(size_t i = 0; i < p_m - 1; i++){
         U.m_M[i][0] = this->p_terminalCondition.m_M[i][0];
     }
 
     // Loop through values of time backward 
-    for (size_t k = p_n - 2; k > 0; k--) {
-        // apply boundaries counditions
+    for (size_t k = this->p_n - 2; k > 0; k--) {
+        // apply boundaries conditions
         prev_uFirst = uFirst;
-        prev_uLast = uLast;
-        uFirst = this->p_lowerBoundaries.m_M[k][0];
-        uLast = this->p_upperBoundaries.m_M[k][0];
 
-        matrix P(p_m - 1, p_m - 1);
-        matrix Q(p_m - 1, p_m - 1);
-        matrix V(p_m - 1, 1);
+        setupBoundary(k / this->p_n);
+        uFirst = this->p_lowerBoundaries.m_M[k][0];
+
+        matrix P(this->p_m - 1, this->p_m - 1);
+        matrix Q(this->p_m - 1, this->p_m - 1);
+        matrix V(this->p_m - 1, 1);
 
         // get current value of time
         iterTime = this->p_timeGrid.m_M[k][0];
          
-        for(size_t i = 0; i < p_m - 1; i++){
+        for(size_t i = 0; i < this->p_m - 1; i++){
             // get current value of spot
             iterSpot = this->p_spotGrid.m_M[i + 1][0];
             
@@ -146,7 +146,7 @@ void pricerPDE::applyCrankNicholson()
             iterD = this->p_d(iterTime, iterSpot);
 
             // fill iterative matrix P and Q
-            for(size_t j = 0; j < p_m - 1; j++){
+            for(size_t j = 0; j < this->p_m - 1; j++){
                 // diagonal terms
                 if(j == i){
                     P.m_M[i][j] = iterA - (1 / this->p_dt + 2 * theta * iterC / (std::pow(this->p_dS, 2))); 
@@ -172,14 +172,14 @@ void pricerPDE::applyCrankNicholson()
             }
         }
 
-        // retreive previous state of matrix
+        // retrieve previous state of matrix
         U = P.inversion() * (Q * U + V) * -1;
     }
     // returning output into variable
     this->p_priceGrid.m_M[0][0] = this->p_lowerBoundaries.m_M[0][0];
     this->p_priceGrid.m_M[p_m-1][0] = this->p_upperBoundaries.m_M[0][0];
 
-    for(size_t i = 0; i < p_m - 1; i++){
+    for(size_t i = 0; i < this->p_m - 1; i++){
         this->p_priceGrid.m_M[i+1][0] = U.m_M[i][0];
     }
 }
@@ -211,16 +211,29 @@ void pricerPDE::setupGrid()
     // fills the spot grid
     for (int i = 0; i < this->p_m; i++) {
         p_spotGrid.m_M[i][0] = this->p_strike - this->p_multiplier * this->p_vol * this->p_strike + i * this->p_dS;
+
+        // applies the natural lower boundary condition on the spot (assume to be positive or null)
+        if (p_spotGrid.m_M[i][0] < 0) {p_spotGrid.m_M[i][0] = 0;};
     }
 
-    // fills the terminal condition vector
+    setupBoundary(this->p_matu);
+    setupTerminal();
+}
+
+// fills the lower and upper boundary conditions
+void pricerPDE::setupTerminal()
+{
     for (int i = 0; i < this->p_m; i++) {
         p_terminalCondition.m_M[i][0] = std::max(this->p_spotGrid.m_M[i][0] - this->p_strike, 0.0);
     }
+}
 
-    // fills the upper/lower boundary condition vectors
+// fills the terminal condition
+void pricerPDE::setupBoundary(double remaining_t)
+{
     for (int i = 0; i < this->p_n; i++) {
         p_lowerBoundaries.m_M[i][0] = 0;
-        p_upperBoundaries.m_M[i][0] = this->p_spot;
+        p_upperBoundaries.m_M[i][0] = this->p_spotGrid.m_M[i][0];
+        p_upperBoundaries.m_M[i][0] *= std::exp((this->p_repo - this->p_divs - this->p_rate) * (remaining_t));
     }
 }
