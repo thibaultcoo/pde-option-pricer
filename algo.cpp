@@ -12,21 +12,21 @@ matrix customUpper(size_t timeGridSize);
 int main()
 {
     // Prof. pricing parameters
-    double spot = 50;
-    double strike = 56;
-    double rate = 0.08;
-    double divs = 0.05;
+    double spot = 85;
+    double strike = 100;
+    double rate = 0.07;
+    double divs = 0.03;
     double repo = 0.0;
-    double vol = 0.23;
-    double matu = 0.70;
-
+    double vol = 0.29;
+    double matu = 1;
+ 
     // creating an option object and pricing the corresponding call
     blackScholes option(spot, strike, rate, divs, repo, vol, matu);
     double price_bs = option.callOptionPrice();
 
     // discretization steps for the finite difference price resolution
-    size_t priceGridSize = 45;
-    size_t timeGridSize = 45;
+    size_t priceGridSize = 40;
+    size_t timeGridSize = 40;
 
     // chosen to generate a coherent spot grid
     double multiplier = 4;

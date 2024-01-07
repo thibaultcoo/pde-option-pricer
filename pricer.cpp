@@ -175,8 +175,6 @@ void pricerPDE::applyCrankNicholson()
         std::cout << "Code is at " << (1.0 - static_cast<double>(k) / static_cast<double>(this->p_n)) * 100 << "%" << std::endl;
 
     }
-    // cleans output when compilation is done
-    for (int i = 0; i < 20; ++i) {std::cout << "\n";}
 
     for (size_t i = 0; i < this->p_m - 1; i++) {
         this->p_priceGrid.m_M[i][0] = U.m_M[i][0];
