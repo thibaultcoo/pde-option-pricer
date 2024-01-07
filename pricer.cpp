@@ -160,20 +160,25 @@ void pricerPDE::applyCrankNicholson()
             V.m_M[i][0] = iterD;
 
             // adjust V with boundary conditions
-            if(i == 0 || i == this->p_m - 2){
-                V.m_M[0][0] += prev_uFirst * (iterB / (2 * this->p_dS) + theta * iterC / (std::pow(this->p_dS, 2)));
-                V.m_M[0][0] += uFirst * (1 - theta) * iterC / (std::pow(this->p_dS, 2));
+            if (i == 0) {
+                V.m_M[i][0] += uFirst * (-iterB / (2 * this->p_dS) + theta * iterC / (std::pow(this->p_dS, 2))) + prev_uFirst * (1 - theta) * iterC / (std::pow(this->p_dS, 2));
+            }
+            else if (i == this->p_m - 2) {
+                V.m_M[i][0] += uFirst * (iterB / (2 * this->p_dS) + theta * iterC / (std::pow(this->p_dS, 2))) + prev_uFirst * (1 - theta) * iterC / (std::pow(this->p_dS, 2));
             }
         }
 
         // retrieve previous state of matrix
         U = P.inversion() * (Q * U + V) * -1;
+
+        // lets us know what percentage of the code has compiled
+        std::cout << "Code is at " << (1.0 - static_cast<double>(k) / static_cast<double>(this->p_n)) * 100 << "%" << std::endl;
+
     }
+    // cleans output when compilation is done
+    for (int i = 0; i < 20; ++i) {std::cout << "\n";}
 
-    // finish filling the price grid with the terminal price values
-    this->p_priceGrid.m_M[this->p_m - 1][0] = this->p_upperBoundaries.m_M[p_m - 1][0];
-
-    for(size_t i = 0; i < this->p_m - 1; i++){
+    for (size_t i = 0; i < this->p_m - 1; i++) {
         this->p_priceGrid.m_M[i][0] = U.m_M[i][0];
     }
 }
@@ -187,7 +192,7 @@ void pricerPDE::setupGrid()
 
     matrix timeGrid(p_n, 1);
     matrix spotGrid(p_m, 1);
-    matrix priceGrid(p_n, p_m);
+    matrix priceGrid(p_m, p_n);
 
     this->p_timeGrid = timeGrid;
     this->p_spotGrid = spotGrid;
@@ -218,8 +223,10 @@ void pricerPDE::setupGrid()
 // fills the lower and upper boundary conditions (default if nothing is input by Prof.)
 void pricerPDE::setupTerminal()
 {
+    double discount = 1;
+
     for (int i = 0; i < this->p_m; i++) {
-        if (this->p_isDefaultTerminal) {this->p_terminalCondition.m_M[i][0] = std::max(this->p_spotGrid.m_M[i][0] - this->p_strike, 0.0);}
+        if (this->p_isDefaultTerminal) {this->p_terminalCondition.m_M[i][0] = std::max(this->p_spotGrid.m_M[i][0] * discount - this->p_strike, 0.0);}
     }
 }
 
@@ -229,6 +236,6 @@ void pricerPDE::setupBoundary(double remaining_t)
     for (int i = 0; i < this->p_n; i++) {
         if (this->p_isDefaultLower) {this->p_lowerBoundaries.m_M[i][0] = 0;}
         if (this->p_isDefaultUpper) {this->p_upperBoundaries.m_M[i][0] = this->p_spotGrid.m_M[i][0];}
-        if (this->p_isDefaultUpper) {this->p_upperBoundaries.m_M[i][0] *= std::exp((this->p_repo - this->p_divs - this->p_rate) * (remaining_t));}
+        if (this->p_isDefaultUpper) {this->p_upperBoundaries.m_M[i][0] *= std::exp((this->p_repo + this->p_divs - this->p_rate) * (remaining_t));}
     }
 }
