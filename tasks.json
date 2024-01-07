@@ -20,7 +20,7 @@
                 "$gcc"
             ],
             "group": "build",
-            "detail": "Ali project"
+            "detail": "project"
         },
         {
             "type": "cppbuild",
@@ -42,7 +42,7 @@
                 "$gcc"
             ],
             "group": "build",
-            "detail": "Ali project"
+            "detail": "project"
         },
         {
             "type": "cppbuild",

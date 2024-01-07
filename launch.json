@@ -24,7 +24,7 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "Ali project"
+            "preLaunchTask": "project"
         },
         {
             "name": "C/C++: PDE pricing module",
@@ -50,7 +50,7 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "Ali project"
+            "preLaunchTask": "project"
         },
         {
             "name": "C/C++: gcc.exe build and debug active file",
